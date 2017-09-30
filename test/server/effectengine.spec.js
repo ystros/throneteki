@@ -14,7 +14,7 @@ describe('EffectEngine', function () {
 
         this.effectSpy = jasmine.createSpyObj('effect', ['addTargets', 'isInActiveLocation', 'reapply', 'removeTarget', 'cancel', 'setActive']);
         this.effectSpy.isInActiveLocation.and.returnValue(true);
-        this.effectSpy.targetLocation = 'play area';
+        this.effectSpy.targetLocation = ['play area'];
 
         this.engine = new EffectEngine(this.gameSpy);
     });
@@ -125,7 +125,7 @@ describe('EffectEngine', function () {
                     this.effectSpy.duration = 'untilEndOfPhase';
                     this.effectSpy.location = 'any';
                     this.effectSpy.source = {};
-                    this.effectSpy.targetLocation = 'play area';
+                    this.effectSpy.targetLocation = ['play area'];
                     this.engine.onCardMoved({ card: this.cardEnteringPlay, originalLocation: 'hand', newLocation: 'play area' });
                 });
 
@@ -189,7 +189,7 @@ describe('EffectEngine', function () {
                         this.effectSpy.duration = 'untilEndOfPhase';
                         this.effectSpy.location = 'any';
                         this.effectSpy.source = {};
-                        this.effectSpy.targetLocation = 'play area';
+                        this.effectSpy.targetLocation = ['play area'];
                         this.engine.onCardMoved({ card: this.cardLeavingPlay, originalLocation: 'play area', newLocation: 'discard pile' });
                     });
 
@@ -472,7 +472,7 @@ describe('EffectEngine', function () {
             };
             this.effectSpy2 = jasmine.createSpyObj('effect', ['addTargets', 'isInActiveLocation', 'reapply', 'removeTarget', 'cancel', 'setActive']);
             this.effectSpy2.isInActiveLocation.and.returnValue(true);
-            this.effectSpy2.targetLocation = 'play area';
+            this.effectSpy2.targetLocation = ['play area'];
             this.effectSpy2.duration = 'custom';
             this.effectSpy2.until = { foo: () => true };
 

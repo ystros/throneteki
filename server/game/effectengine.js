@@ -34,7 +34,8 @@ class EffectEngine {
     }
 
     getTargets() {
-        var validTargets = this.game.allCards.filter(card => card.location === 'play area' || card.location === 'active plot' || card.location === 'hand');
+        const validTargetLocations = ['active plot', 'dead pile', 'discard pile', 'hand', 'play area'];
+        let validTargets = this.game.allCards.filter(card => validTargetLocations.includes(card.location));
         return validTargets.concat(_.values(this.game.getPlayers()));
     }
 
@@ -47,10 +48,10 @@ class EffectEngine {
     }
 
     onCardMoved(event) {
-        let newArea = event.newLocation === 'hand' ? 'hand' : 'play area';
-        this.removeTargetFromEffects(event.card, event.originalLocation);
+        // let newArea = event.newLocation === 'hand' ? 'hand' : 'play area';
+        this.removeTargetFromEffects(event.card, event.originalLocation, event.newLocation);
         this.unapplyAndRemove(effect => effect.duration === 'persistent' && effect.source === event.card && (effect.location === event.originalLocation || event.parentChanged));
-        this.addTargetForPersistentEffects(event.card, newArea);
+        this.addTargetForPersistentEffects(event.card, event.newLocation);
     }
 
     onCardTakenControl(event) {
@@ -94,19 +95,19 @@ class EffectEngine {
 
     addTargetForPersistentEffects(card, targetLocation) {
         _.each(this.effects, effect => {
-            if(effect.duration === 'persistent' && effect.targetLocation === targetLocation) {
+            if(effect.duration === 'persistent' && effect.targetLocation.includes(targetLocation)) {
                 effect.addTargets([card]);
             }
         });
     }
 
-    removeTargetFromEffects(card, location) {
-        let area = location === 'hand' ? 'hand' : 'play area';
-        _.each(this.effects, effect => {
-            if(effect.targetLocation === area && effect.location !== 'any' || location === 'play area' && effect.duration !== 'persistent') {
+    removeTargetFromEffects(card, originalLocation, targetLocation) {
+        let outOfBoundsEffects = this.effects.filter(effect => !effect.targetLocation.includes(targetLocation));
+        for(let effect of outOfBoundsEffects) {
+            if(effect.targetLocation.includes(originalLocation) && effect.location !== 'any' || effect.duration !== 'persistent') {
                 effect.removeTarget(card);
             }
-        });
+        }
     }
 
     onCardBlankToggled(event) {

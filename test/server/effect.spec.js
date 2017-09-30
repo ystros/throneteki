@@ -199,7 +199,7 @@ describe('Effect', function() {
 
             describe('when the target location is play area', function() {
                 beforeEach(function() {
-                    this.effect.targetLocation = 'play area';
+                    this.effect.targetLocation = ['play area'];
                 });
 
                 it('should add targets from play area', function() {
@@ -223,7 +223,7 @@ describe('Effect', function() {
 
             describe('when the target location is hand', function() {
                 beforeEach(function() {
-                    this.effect.targetLocation = 'hand';
+                    this.effect.targetLocation = ['hand'];
                 });
 
                 it('should reject targets from play area', function() {
@@ -252,7 +252,7 @@ describe('Effect', function() {
 
                 describe('when the target location is play area', function() {
                     beforeEach(function() {
-                        this.effect.targetLocation = 'play area';
+                        this.effect.targetLocation = ['play area'];
                     });
 
                     it('should add targets from play area', function() {
@@ -276,7 +276,7 @@ describe('Effect', function() {
 
                 describe('when the target location is hand', function() {
                     beforeEach(function() {
-                        this.effect.targetLocation = 'hand';
+                        this.effect.targetLocation = ['hand'];
                     });
 
                     it('should reject targets from play area', function() {
