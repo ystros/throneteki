@@ -1,6 +1,7 @@
 const _ = require('underscore');
 const BaseStep = require('./basestep.js');
 const GamePipeline = require('../gamepipeline.js');
+const GameFlowMarker = require('./GameFlowMarker.js');
 const SimpleStep = require('./simplestep.js');
 
 class Phase extends BaseStep {
@@ -11,9 +12,10 @@ class Phase extends BaseStep {
     }
 
     initialise(steps) {
-        var startStep = new SimpleStep(this.game, () => this.startPhase());
-        var endStep = new SimpleStep(this.game, () => this.endPhase());
-        this.pipeline.initialise([startStep].concat(steps).concat([endStep]));
+        let flowMarkerStep = new GameFlowMarker(this.game, this.name);
+        let startStep = new SimpleStep(this.game, () => this.startPhase());
+        let endStep = new SimpleStep(this.game, () => this.endPhase());
+        this.pipeline.initialise([flowMarkerStep, startStep].concat(steps).concat([endStep]));
     }
 
     queueStep(step) {

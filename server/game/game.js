@@ -63,6 +63,7 @@ class Game extends EventEmitter {
         this.isMelee = !!details.isMelee;
         this.titlePool = new TitlePool(this, options.titleCardData || []);
         this.shortCardData = options.shortCardData || [];
+        this.currentFlowStep = 'setup';
 
         _.each(details.players, player => {
             this.playersAndSpectators[player.user.username] = new Player(player.id, player.user, this.owner === player.user.username, this);
@@ -960,6 +961,7 @@ class Game extends EventEmitter {
             });
 
             return {
+                currentFlowStep: this.currentFlowStep,
                 id: this.id,
                 isMelee: this.isMelee,
                 name: this.name,

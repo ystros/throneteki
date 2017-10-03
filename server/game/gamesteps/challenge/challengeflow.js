@@ -5,6 +5,7 @@ const SimpleStep = require('../simplestep.js');
 const ChooseStealthTargets = require('./choosestealthtargets.js');
 const ApplyClaim = require('./applyclaim.js');
 const ActionWindow = require('../actionwindow.js');
+const GameFlowMarker = require('../GameFlowMarker.js');
 const KeywordWindow = require('../keywordwindow.js');
 
 class ChallengeFlow extends BaseStep {
@@ -15,18 +16,24 @@ class ChallengeFlow extends BaseStep {
         this.pipeline.initialise([
             new SimpleStep(this.game, () => this.resetCards()),
             new SimpleStep(this.game, () => this.announceChallenge()),
+            new GameFlowMarker(this.game, 'challenge-attackers'),
             new SimpleStep(this.game, () => this.promptForAttackers()),
             new SimpleStep(this.game, () => this.chooseStealthTargets()),
             new SimpleStep(this.game, () => this.initiateChallenge()),
             new SimpleStep(this.game, () => this.announceAttackerStrength()),
             new ActionWindow(this.game, 'After attackers declared', 'attackersDeclared'),
+            new GameFlowMarker(this.game, 'challenge-defenders'),
             new SimpleStep(this.game, () => this.promptForDefenders()),
             new SimpleStep(this.game, () => this.announceDefenderStrength()),
             new ActionWindow(this.game, 'After defenders declared', 'defendersDeclared'),
+            new GameFlowMarker(this.game, 'challenge-determine-winner'),
             new SimpleStep(this.game, () => this.determineWinner()),
+            new GameFlowMarker(this.game, 'challenge-unopposed'),
             new SimpleStep(this.game, () => this.unopposedPower()),
+            new GameFlowMarker(this.game, 'challenge-claim'),
             new SimpleStep(this.game, () => this.beforeClaim()),
             new SimpleStep(this.game, () => game.reapplyStateDependentEffects()),
+            new GameFlowMarker(this.game, 'challenge-keywords'),
             () => new KeywordWindow(this.game, this.challenge),
             new SimpleStep(this.game, () => this.completeChallenge())
         ]);

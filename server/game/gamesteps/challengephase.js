@@ -3,13 +3,16 @@ const SimpleStep = require('./simplestep.js');
 const Challenge = require('../challenge.js');
 const ChallengeFlow = require('./challenge/challengeflow.js');
 const ActionWindow = require('./actionwindow.js');
+const GameFlowMarker = require('./GameFlowMarker.js');
 
 class ChallengePhase extends Phase {
     constructor(game) {
         super(game, 'challenge');
         this.initialise([
             new SimpleStep(this.game, () => this.beginPhase()),
+            new GameFlowMarker(this.game, 'challenge-before'),
             new ActionWindow(this.game, 'Before challenge', 'challengeBegin'),
+            new GameFlowMarker(this.game, 'challenge-initiating'),
             new SimpleStep(this.game, () => this.promptForChallenge())
         ]);
     }
@@ -69,7 +72,9 @@ class ChallengePhase extends Phase {
         this.game.currentChallenge = challenge;
         this.game.queueStep(new ChallengeFlow(this.game, challenge));
         this.game.queueStep(new SimpleStep(this.game, () => this.cleanupChallenge()));
+        this.game.queueStep(new GameFlowMarker(this.game, 'challenge-before'));
         this.game.queueStep(new ActionWindow(this.game, 'Before challenge', 'challengeBegin'));
+        this.game.queueStep(new GameFlowMarker(this.game, 'challenge-initiating'));
     }
 
     cleanupChallenge() {
