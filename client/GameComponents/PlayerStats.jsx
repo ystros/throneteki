@@ -54,7 +54,7 @@ export class PlayerStats extends React.Component {
             </div>);
 
         return (
-            <div className='panel player-stats'>
+            <div className='player-stats'>
                 { playerAvatar }
 
                 { this.getButton('gold', 'Gold') }

@@ -15,6 +15,8 @@ import Messages from './GameComponents/Messages.jsx';
 import Card from './GameComponents/Card.jsx';
 import CardPile from './GameComponents/CardPile.jsx';
 import GameConfiguration from './GameComponents/GameConfiguration.jsx';
+import GameFlow from './GameComponents/GameFlow.jsx';
+import GameFlowSteps from './GameFlowSteps.js';
 import { tryParseJSON } from './util.js';
 
 import * as actions from './actions';
@@ -45,7 +47,8 @@ export class InnerGameBoard extends React.Component {
             spectating: true,
             message: '',
             showActionWindowsMenu: false,
-            showCardMenu: {}
+            showCardMenu: {},
+            showGameFlow: false
         };
     }
 
@@ -372,6 +375,32 @@ export class InnerGameBoard extends React.Component {
         $(findDOMNode(this.refs.modal)).modal('show');
     }
 
+    onToggleGameFlow() {
+        this.setState({ showGameFlow: !this.state.showGameFlow });
+    }
+
+    renderGameFlowToggle() {
+        let glyph = this.state.showGameFlow ? 'glyphicon-triangle-left' : 'glyphicon-triangle-right';
+        return (
+            <a href='#' className='game-flow-toggle' onClick={ () => this.onToggleGameFlow() }>
+                <span className={ 'glyphicon ' + glyph } />
+            </a>);
+    }
+
+    renderGameFlow() {
+        if(!this.state.showGameFlow) {
+            return null;
+        }
+
+        let thisPlayer = this.props.currentGame.players[this.props.username];
+        return (
+            <GameFlow
+                actionWindows={ thisPlayer.promptedActionWindows }
+                currentStep={ this.props.currentGame.currentFlowStep }
+                gameSteps={ GameFlowSteps }
+                onActionWindowToggle={ this.onPromptedActionWindowToggle.bind(this) } />);
+    }
+
     render() {
         if(!this.props.currentGame) {
             return <div>Waiting for server...</div>;
@@ -435,100 +464,104 @@ export class InnerGameBoard extends React.Component {
         return (
             <div className='game-board'>
                 { popup }
-                <div className='player-stats-row'>
-                    <PlayerStats stats={ otherPlayer ? otherPlayer.stats : null }
-                        user={ otherPlayer ? otherPlayer.user : null } firstPlayer={ otherPlayer && otherPlayer.firstPlayer } />
-                </div>
-                <div className='main-window'>
-                    { this.getPlots(thisPlayer, otherPlayer) }
-                    <div className='board-middle'>
-                        <div className='player-home-row'>
-                            <PlayerRow
-                                agenda={ otherPlayer ? otherPlayer.agenda : null }
-                                bannerCards={ otherPlayer ? otherPlayer.cardPiles.bannerCards : [] }
-                                conclavePile={ otherPlayer ? otherPlayer.cardPiles.conclavePile : [] }
-                                faction={ otherPlayer ? otherPlayer.faction : null }
-                                hand={ otherPlayer ? otherPlayer.cardPiles.hand : [] } isMe={ false }
-                                isMelee={ this.props.currentGame.isMelee }
-                                numDrawCards={ otherPlayer ? otherPlayer.numDrawCards : 0 }
-                                discardPile={ otherPlayer ? otherPlayer.cardPiles.discardPile : [] }
-                                deadPile={ otherPlayer ? otherPlayer.cardPiles.deadPile : [] }
-                                onCardClick={ this.onCardClick }
-                                onMouseOver={ this.onMouseOver }
-                                onMouseOut={ this.onMouseOut }
-                                outOfGamePile={ otherPlayer ? otherPlayer.cardPiles.outOfGamePile : [] }
-                                title={ otherPlayer ? otherPlayer.title : null }
-                                cardSize={ this.props.user.settings.cardSize } />
-                        </div>
-                        <div className='board-inner'>
-                            <div className='prompt-area'>
-                                <div className='inset-pane'>
-                                    <ActivePlayerPrompt title={ thisPlayer.menuTitle }
-                                        buttons={ thisPlayer.buttons }
-                                        controls={ thisPlayer.controls }
-                                        promptTitle={ thisPlayer.promptTitle }
-                                        onButtonClick={ this.onCommand }
-                                        onMouseOver={ this.onMouseOver }
-                                        onMouseOut={ this.onMouseOut }
-                                        user={ this.props.user }
-                                        onTimerExpired={ this.onTimerExpired.bind(this) }
-                                        phase={ thisPlayer.phase } />
+                { this.renderGameFlow() }
+                <div className='game-board-inner'>
+                    <div className='player-stats-row panel'>
+                        <PlayerStats stats={ otherPlayer ? otherPlayer.stats : null }
+                            user={ otherPlayer ? otherPlayer.user : null } firstPlayer={ otherPlayer && otherPlayer.firstPlayer } />
+                    </div>
+                    <div className='main-window'>
+                        { this.getPlots(thisPlayer, otherPlayer) }
+                        <div className='board-middle'>
+                            <div className='player-home-row'>
+                                <PlayerRow
+                                    agenda={ otherPlayer ? otherPlayer.agenda : null }
+                                    bannerCards={ otherPlayer ? otherPlayer.cardPiles.bannerCards : [] }
+                                    conclavePile={ otherPlayer ? otherPlayer.cardPiles.conclavePile : [] }
+                                    faction={ otherPlayer ? otherPlayer.faction : null }
+                                    hand={ otherPlayer ? otherPlayer.cardPiles.hand : [] } isMe={ false }
+                                    isMelee={ this.props.currentGame.isMelee }
+                                    numDrawCards={ otherPlayer ? otherPlayer.numDrawCards : 0 }
+                                    discardPile={ otherPlayer ? otherPlayer.cardPiles.discardPile : [] }
+                                    deadPile={ otherPlayer ? otherPlayer.cardPiles.deadPile : [] }
+                                    onCardClick={ this.onCardClick }
+                                    onMouseOver={ this.onMouseOver }
+                                    onMouseOut={ this.onMouseOut }
+                                    outOfGamePile={ otherPlayer ? otherPlayer.cardPiles.outOfGamePile : [] }
+                                    title={ otherPlayer ? otherPlayer.title : null }
+                                    cardSize={ this.props.user.settings.cardSize } />
+                            </div>
+                            <div className='board-inner'>
+                                <div className='prompt-area'>
+                                    <div className='inset-pane'>
+                                        <ActivePlayerPrompt title={ thisPlayer.menuTitle }
+                                            buttons={ thisPlayer.buttons }
+                                            controls={ thisPlayer.controls }
+                                            promptTitle={ thisPlayer.promptTitle }
+                                            onButtonClick={ this.onCommand }
+                                            onMouseOver={ this.onMouseOver }
+                                            onMouseOut={ this.onMouseOut }
+                                            user={ this.props.user }
+                                            onTimerExpired={ this.onTimerExpired.bind(this) }
+                                            phase={ thisPlayer.phase } />
+                                    </div>
+                                </div>
+                                <div className='play-area'>
+                                    <div className='player-board'>
+                                        { otherPlayerCards }
+                                    </div>
+                                    <div className='player-board our-side' onDragOver={ this.onDragOver }
+                                        onDrop={ event => this.onDragDropEvent(event, 'play area') } >
+                                        { thisPlayerCards }
+                                    </div>
                                 </div>
                             </div>
-                            <div className='play-area'>
-                                <div className='player-board'>
-                                    { otherPlayerCards }
-                                </div>
-                                <div className='player-board our-side' onDragOver={ this.onDragOver }
-                                    onDrop={ event => this.onDragDropEvent(event, 'play area') } >
-                                    { thisPlayerCards }
-                                </div>
+                            <div className='player-home-row our-side'>
+                                <PlayerRow isMe={ !this.state.spectating }
+                                    agenda={ thisPlayer.agenda }
+                                    bannerCards={ thisPlayer.cardPiles.bannerCards }
+                                    conclavePile={ thisPlayer.cardPiles.conclavePile }
+                                    faction={ thisPlayer.faction }
+                                    hand={ thisPlayer.cardPiles.hand }
+                                    isMelee={ this.props.currentGame.isMelee }
+                                    onCardClick={ this.onCardClick }
+                                    onMouseOver={ this.onMouseOver }
+                                    onMouseOut={ this.onMouseOut }
+                                    numDrawCards={ thisPlayer.numDrawCards }
+                                    onDrawClick={ this.onDrawClick }
+                                    onShuffleClick={ this.onShuffleClick }
+                                    outOfGamePile={ thisPlayer.cardPiles.outOfGamePile }
+                                    showDrawDeck={ this.state.showDrawDeck }
+                                    drawDeck={ thisPlayer.cardPiles.drawDeck }
+                                    onDragDrop={ this.onDragDrop }
+                                    discardPile={ thisPlayer.cardPiles.discardPile }
+                                    deadPile={ thisPlayer.cardPiles.deadPile }
+                                    spectating={ this.state.spectating }
+                                    title={ thisPlayer.title }
+                                    onMenuItemClick={ this.onMenuItemClick }
+                                    cardSize={ this.props.user.settings.cardSize } />
                             </div>
                         </div>
-                        <div className='player-home-row our-side'>
-                            <PlayerRow isMe={ !this.state.spectating }
-                                agenda={ thisPlayer.agenda }
-                                bannerCards={ thisPlayer.cardPiles.bannerCards }
-                                conclavePile={ thisPlayer.cardPiles.conclavePile }
-                                faction={ thisPlayer.faction }
-                                hand={ thisPlayer.cardPiles.hand }
-                                isMelee={ this.props.currentGame.isMelee }
-                                onCardClick={ this.onCardClick }
-                                onMouseOver={ this.onMouseOver }
-                                onMouseOut={ this.onMouseOut }
-                                numDrawCards={ thisPlayer.numDrawCards }
-                                onDrawClick={ this.onDrawClick }
-                                onShuffleClick={ this.onShuffleClick }
-                                outOfGamePile={ thisPlayer.cardPiles.outOfGamePile }
-                                showDrawDeck={ this.state.showDrawDeck }
-                                drawDeck={ thisPlayer.cardPiles.drawDeck }
-                                onDragDrop={ this.onDragDrop }
-                                discardPile={ thisPlayer.cardPiles.discardPile }
-                                deadPile={ thisPlayer.cardPiles.deadPile }
-                                spectating={ this.state.spectating }
-                                title={ thisPlayer.title }
-                                onMenuItemClick={ this.onMenuItemClick }
-                                cardSize={ this.props.user.settings.cardSize } />
+                        <div className='right-side'>
+                            <CardZoom imageUrl={ this.props.cardToZoom ? '/img/cards/' + this.props.cardToZoom.code + '.png' : '' }
+                                orientation={ this.props.cardToZoom ? this.props.cardToZoom.type === 'plot' ? 'horizontal' : 'vertical' : 'vertical' }
+                                show={ !!this.props.cardToZoom } cardName={ this.props.cardToZoom ? this.props.cardToZoom.name : null } />
+                            <div className='chat'>
+                                <div className='messages panel' ref='messagePanel' onScroll={ this.onScroll }>
+                                    <Messages messages={ this.props.currentGame.messages } onCardMouseOver={ this.onMouseOver } onCardMouseOut={ this.onMouseOut } />
+                                </div>
+                                <form>
+                                    <input className='form-control' placeholder='Chat...' onKeyPress={ this.onKeyPress } onChange={ this.onChange }
+                                        value={ this.state.message } />
+                                </form>
+                            </div>
                         </div>
                     </div>
-                    <div className='right-side'>
-                        <CardZoom imageUrl={ this.props.cardToZoom ? '/img/cards/' + this.props.cardToZoom.code + '.png' : '' }
-                            orientation={ this.props.cardToZoom ? this.props.cardToZoom.type === 'plot' ? 'horizontal' : 'vertical' : 'vertical' }
-                            show={ !!this.props.cardToZoom } cardName={ this.props.cardToZoom ? this.props.cardToZoom.name : null } />
-                        <div className='chat'>
-                            <div className='messages panel' ref='messagePanel' onScroll={ this.onScroll }>
-                                <Messages messages={ this.props.currentGame.messages } onCardMouseOver={ this.onMouseOver } onCardMouseOut={ this.onMouseOut } />
-                            </div>
-                            <form>
-                                <input className='form-control' placeholder='Chat...' onKeyPress={ this.onKeyPress } onChange={ this.onChange }
-                                    value={ this.state.message } />
-                            </form>
-                        </div>
+                    <div className='player-stats-row panel'>
+                        { this.renderGameFlowToggle() }
+                        <PlayerStats { ...boundActionCreators } stats={ thisPlayer.stats } showControls={ !this.state.spectating } user={ thisPlayer.user }
+                            firstPlayer={ thisPlayer.firstPlayer } onSettingsClick={ this.onSettingsClick.bind(this) } />
                     </div>
-                </div>
-                <div className='player-stats-row'>
-                    <PlayerStats { ...boundActionCreators } stats={ thisPlayer.stats } showControls={ !this.state.spectating } user={ thisPlayer.user }
-                        firstPlayer={ thisPlayer.firstPlayer } onSettingsClick={ this.onSettingsClick.bind(this) } />
                 </div>
             </div>);
     }

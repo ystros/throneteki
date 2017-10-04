@@ -7,6 +7,13 @@
   top: 50px;
   display: flex;
   justify-content: space-between;
+  flex-direction: row;
+}
+
+.game-board-inner {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
   flex-direction: column;
 }
 
@@ -14,6 +21,53 @@
   display: flex;
   flex-direction: row;
   flex: 1;
+}
+
+a.game-flow-toggle {
+  color: white;
+  display: block;
+  margin-right: 5px;
+}
+
+.game-flow {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  width: 200px;
+
+  &.panel {
+    border-bottom: none;
+    border-left: none;
+    border-radius: 0;
+    border-top: none;
+    margin: 0;
+    position: static;
+    top: auto;
+  }
+}
+
+.game-step {
+  border: 1px solid fade(@brand-primary, 70%);
+  margin: 5px 0;
+  padding: 5px 10px;
+  text-align: center;
+
+  &.active {
+    background: @brand-tertiary;
+    border: 1px solid @brand-primary;
+  }
+
+  &.child-active {
+    border: 1px solid @brand-secondary;
+  }
+}
+
+.game-step label {
+  margin-bottom: 0;
+}
+
+.game-step input[type=checkbox] {
+  margin-right: 0.5em;
 }
 
 .card-pile {
@@ -117,18 +171,25 @@
   justify-content: space-between;
 }
 
-.player-stats {
+.player-stats-row {
+  align-items: center;
   display: flex;
 
   &.panel {
-    margin: 0;
+    border-left: none;
+    border-right: none;
     border-radius: 0;
+    margin: 0;
     padding: 10px 0 10px 5px;
     position: initial;
+    top: 0;
   }
+}
 
-  display: flex;
+.player-stats {
   align-items: center;
+  display: flex;
+  flex: 1;
 }
 
 
