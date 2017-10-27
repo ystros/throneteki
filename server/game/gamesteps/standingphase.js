@@ -2,12 +2,15 @@ const _ = require('underscore');
 const Phase = require('./phase.js');
 const SimpleStep = require('./simplestep.js');
 const ActionWindow = require('./actionwindow.js');
+const GameFlowMarker = require('./GameFlowMarker.js');
 
 class StandingPhase extends Phase {
     constructor(game) {
         super(game, 'standing');
         this.initialise([
+            new GameFlowMarker(this.game, 'stand-cards'),
             new SimpleStep(game, () => this.standCards()),
+            new GameFlowMarker(this.game, 'standing-actions'),
             new ActionWindow(this.game, 'After cards stand', 'standing')
         ]);
     }

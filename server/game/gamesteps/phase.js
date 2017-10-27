@@ -11,11 +11,12 @@ class Phase extends BaseStep {
         this.pipeline = new GamePipeline();
     }
 
-    initialise(steps) {
-        let flowMarkerStep = new GameFlowMarker(this.game, this.name);
+    initialise(steps) {        
+        let flowMarkerBeginPhase = new GameFlowMarker(this.game, this.name + '-begin');
+        let flowMarkerEndPhase = new GameFlowMarker(this.game, this.name + '-end');
         let startStep = new SimpleStep(this.game, () => this.startPhase());
         let endStep = new SimpleStep(this.game, () => this.endPhase());
-        this.pipeline.initialise([flowMarkerStep, startStep].concat(steps).concat([endStep]));
+        this.pipeline.initialise([flowMarkerBeginPhase, startStep].concat(steps).concat([flowMarkerEndPhase,endStep]));
     }
 
     queueStep(step) {

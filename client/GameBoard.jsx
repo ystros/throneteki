@@ -394,8 +394,9 @@ export class InnerGameBoard extends React.Component {
 
         let thisPlayer = this.props.currentGame.players[this.props.username];
         return (
-            <GameFlow
+            <GameFlow            
                 actionWindows={ thisPlayer.promptedActionWindows }
+                currentChallengeType={ this.props.currentGame.currentChallengeType }
                 currentStep={ this.props.currentGame.currentFlowStep }
                 gameSteps={ GameFlowSteps }
                 onActionWindowToggle={ this.onPromptedActionWindowToggle.bind(this) } />);

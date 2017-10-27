@@ -2,12 +2,15 @@ const _ = require('underscore');
 const Phase = require('./phase.js');
 const SimpleStep = require('./simplestep.js');
 const ActionWindow = require('./actionwindow.js');
+const GameFlowMarker = require('./GameFlowMarker.js');
 
 class DominancePhase extends Phase {
     constructor(game) {
         super(game, 'dominance');
         this.initialise([
+            new GameFlowMarker(this.game, 'reward-dominance'),
             new SimpleStep(game, () => this.determineWinner()),
+            new GameFlowMarker(this.game, 'dominance-actions'),
             new ActionWindow(this.game, 'After dominance determined', 'dominance')
         ]);
     }

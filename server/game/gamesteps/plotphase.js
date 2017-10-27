@@ -5,17 +5,20 @@ const SelectPlotPrompt = require('./plot/selectplotprompt.js');
 const RevealPlots = require('./revealplots.js');
 const ChooseTitlePrompt = require('./plot/ChooseTitlePrompt.js');
 const ActionWindow = require('./actionwindow.js');
+const GameFlowMarker = require('./GameFlowMarker.js');
 
 class PlotPhase extends Phase {
     constructor(game) {
         super(game, 'plot');
         this.initialise([
             new SimpleStep(game, () => this.startPlotPhase()),
+            new GameFlowMarker(this.game, 'select-plot'),
             new SelectPlotPrompt(game),
             new SimpleStep(game, () => this.removeActivePlots()),
             new SimpleStep(game, () => this.flipPlotsFaceup()),
             () => new RevealPlots(game, _.map(this.game.getPlayers(), player => player.activePlot)),
             () => new ChooseTitlePrompt(game, game.titlePool),
+            new GameFlowMarker(this.game, 'plot-actions'),
             new ActionWindow(this.game, 'After plots revealed', 'plot'),
             new SimpleStep(game, () => this.recyclePlots())
         ]);
