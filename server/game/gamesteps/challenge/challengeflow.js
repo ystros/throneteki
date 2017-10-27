@@ -14,17 +14,19 @@ class ChallengeFlow extends BaseStep {
         this.challenge = challenge;
         this.pipeline = new GamePipeline();
         this.pipeline.initialise([
+            new GameFlowMarker(this.game, 'challenge-initiating'),
             new SimpleStep(this.game, () => this.resetCards()),
             new SimpleStep(this.game, () => this.announceChallenge()),
-            new GameFlowMarker(this.game, 'challenge-attackers'),
             new SimpleStep(this.game, () => this.promptForAttackers()),
             new SimpleStep(this.game, () => this.chooseStealthTargets()),
             new SimpleStep(this.game, () => this.initiateChallenge()),
             new SimpleStep(this.game, () => this.announceAttackerStrength()),
+            new GameFlowMarker(this.game, 'challenge-attackers'),
             new ActionWindow(this.game, 'After attackers declared', 'attackersDeclared'),
-            new GameFlowMarker(this.game, 'challenge-defenders'),
+            new GameFlowMarker(this.game, 'choosing-defenders'),
             new SimpleStep(this.game, () => this.promptForDefenders()),
             new SimpleStep(this.game, () => this.announceDefenderStrength()),
+            new GameFlowMarker(this.game, 'challenge-defenders'),
             new ActionWindow(this.game, 'After defenders declared', 'defendersDeclared'),
             new GameFlowMarker(this.game, 'challenge-determine-winner'),
             new SimpleStep(this.game, () => this.determineWinner()),

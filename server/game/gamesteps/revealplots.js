@@ -2,6 +2,7 @@ const _ = require('underscore');
 const BaseStep = require('./basestep.js');
 const SimpleStep = require('./simplestep.js');
 const FirstPlayerPrompt = require('./plot/firstplayerprompt.js');
+const GameFlowMarker = require('./GameFlowMarker.js');
 
 class RevealPlots extends BaseStep {
     constructor(game, plots) {
@@ -23,8 +24,11 @@ class RevealPlots extends BaseStep {
         this.game.raiseEvent('onPlotsRevealed', params, () => {
             if(this.needsFirstPlayerChoice()) {
                 this.game.raiseEvent('onCompareInitiative', {});
+                this.game.queueStep(new GameFlowMarker(this.game, 'count-initiative'));
                 this.game.queueStep(new SimpleStep(this.game, () => this.determineInitiative()));
+                this.game.queueStep(new GameFlowMarker(this.game, 'first-player'));
                 this.game.queueStep(() => new FirstPlayerPrompt(this.game, this.initiativeWinner));
+                this.game.queueStep(new GameFlowMarker(this.game, 'when-revealed'));
             }
             this.game.raiseEvent('onPlotsWhenRevealed', params);
         });

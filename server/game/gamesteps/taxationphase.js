@@ -3,14 +3,18 @@ const Phase = require('./phase.js');
 const SimpleStep = require('./simplestep.js');
 const DiscardToReservePrompt = require('./taxation/discardtoreserveprompt.js');
 const ActionWindow = require('./actionwindow.js');
+const GameFlowMarker = require('./GameFlowMarker.js');
 
 class TaxationPhase extends Phase {
     constructor(game) {
         super(game, 'taxation');
         this.initialise([
+            new GameFlowMarker(this.game, 'return-gold'),
             new SimpleStep(game, () => this.returnGold()),
+            new GameFlowMarker(this.game, 'check-reserve'),
             new DiscardToReservePrompt(game),
             new SimpleStep(game, () => this.returnTitleCards()),
+            new GameFlowMarker(this.game, 'taxation-actions'),
             new ActionWindow(game, 'After reserve check', 'taxation'),
             new SimpleStep(game, () => this.roundEnded())
         ]);

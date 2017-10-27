@@ -34,6 +34,8 @@ a.game-flow-toggle {
   flex-direction: column;
   font-size: 12px;
   width: 200px;
+  height: 100%;
+  overflow-y: scroll;
 
   &.panel {
     border-bottom: none;
@@ -47,27 +49,94 @@ a.game-flow-toggle {
 }
 
 .game-step {
-  border: 1px solid fade(@brand-primary, 70%);
   margin: 5px 0;
-  padding: 5px 10px;
+  padding: 2px 10px;
   text-align: center;
 
-  &.active {
-    background: @brand-tertiary;
-    border: 1px solid @brand-primary;
+  &.phaseWindow{
+    border: 1px solid fade(@phase-window-color, 70%);
+    position: relative;
+
+    > label {
+      font-variant: small-caps;  
+    }
+    
+    &.active {
+      background: @phase-window-color-active-bg;
+      border: 1px solid @phase-window-color;
+    }
+
+    &.child-active {
+      background: fade(@phase-window-color-child-active-bg,10%);
+      border: 1px solid @phase-window-color-child-active-bg;
+    }
   }
 
-  &.child-active {
-    border: 1px solid @brand-secondary;
+  &.frameworkWindow{
+    border: 1px solid fade(@framework-window-color, 70%);
+    border-radius: 5px;
+
+    &.active {
+      background: @framework-window-color-active-bg;
+      border: 1px solid @framework-window-color;
+    }
   }
+
+  &.actionWindow{
+    border: 1px solid fade(@action-window-color, 70%);
+    background: fade(@action-window-color, 5%);
+    border-radius: 12px;
+
+    &.active {
+      background: @action-window-color-active-bg;
+      border: 1px solid @action-window-color;
+    }
+  }
+
+  &.containerWindow{
+    border-width: 1px;
+    border-style: dashed;
+    border-color: fade(@phase-window-color, 90%);
+    border-radius: 5px;
+
+    &.child-active {
+      border-color: @phase-window-color;      
+      border-style: solid;
+      &.military{
+        border-color: @military-icon-color;
+        background: fade(@military-icon-color,30%);
+      }
+      &.intrigue{
+        border-color: @intrigue-icon-color;
+        background: fade(@intrigue-icon-color,30%);
+      }
+      &.power{
+        border-color: @power-icon-color;
+        background: fade(@power-icon-color,30%);
+      }
+    }
+  }
+  
 }
 
 .game-step label {
-  margin-bottom: 0;
+  margin-bottom: 0;  
+}
+
+.game-step a{
+  position: absolute;
+  top:0;
+  right:0;
+  margin-top: 1px;
+  margin-bottom: 1px;  
 }
 
 .game-step input[type=checkbox] {
   margin-right: 0.5em;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  transform: scale(0.8);
+  vertical-align: middle;
 }
 
 .card-pile {
