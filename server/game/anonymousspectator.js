@@ -6,6 +6,10 @@ class AnonymousSpectator {
         this.menuTitle = 'Spectator mode';
     }
 
+    allowChat() {
+        return false;
+    }
+
     getCardSelectionState() {
         return {};
     }

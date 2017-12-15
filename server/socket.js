@@ -27,6 +27,10 @@ class Socket extends EventEmitter {
         this.socket.on(event, this.onSocketEvent.bind(this, callback));
     }
 
+    registerUnauthedEvent(event, callback) {
+        this.socket.on(event, this.onUnauthedSocketEvent.bind(this, callback));
+    }
+
     joinChannel(channelName) {
         this.socket.join(channelName);
     }
@@ -49,6 +53,15 @@ class Socket extends EventEmitter {
             return;
         }
 
+        try {
+            callback(this, ...args);
+        } catch(err) {
+            logger.info(err);
+            Raven.captureException(err, { extra: args });
+        }
+    }
+
+    onUnauthedSocketEvent(callback, ...args) {
         try {
             callback(this, ...args);
         } catch(err) {

@@ -585,7 +585,7 @@ class Game extends EventEmitter {
         var player = this.playersAndSpectators[playerName];
         var args = message.split(' ');
 
-        if(!player) {
+        if(!player || !player.allowChat()) {
             return;
         }
 

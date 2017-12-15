@@ -288,8 +288,8 @@ class Lobby {
         socket.registerEvent('lobbychat', this.onLobbyChat.bind(this));
         socket.registerEvent('newgame', this.onNewGame.bind(this));
         socket.registerEvent('joingame', this.onJoinGame.bind(this));
-        socket.registerEvent('leavegame', this.onLeaveGame.bind(this));
-        socket.registerEvent('watchgame', this.onWatchGame.bind(this));
+        socket.registerUnauthedEvent('leavegame', this.onLeaveGame.bind(this));
+        socket.registerUnauthedEvent('watchgame', this.onWatchGame.bind(this));
         socket.registerEvent('startgame', this.onStartGame.bind(this));
         socket.registerEvent('chat', this.onPendingGameChat.bind(this));
         socket.registerEvent('selectdeck', this.onSelectDeck.bind(this));
@@ -500,8 +500,7 @@ class Lobby {
     }
 
     onWatchGame(socket, gameId, password) {
-        var existingGame = this.findGameForUser(socket.user.username);
-        if(existingGame) {
+        if(socket.user && this.findGameForUser(socket.user.username)) {
             return;
         }
 

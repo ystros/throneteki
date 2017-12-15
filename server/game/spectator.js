@@ -8,6 +8,10 @@ class Spectator {
         this.menuTitle = 'Spectator mode';
     }
 
+    allowChat() {
+        return true;
+    }
+
     getCardSelectionState() {
         return {};
     }

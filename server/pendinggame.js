@@ -109,6 +109,10 @@ class PendingGame {
     }
 
     isUserBlocked(user) {
+        if(!user) {
+            return false;
+        }
+
         return _.contains(this.owner.blockList, user.username.toLowerCase());
     }
 
@@ -141,6 +145,8 @@ class PendingGame {
         if(this.isUserBlocked(user)) {
             return;
         }
+
+        user = user || { username: 'Anonymous spectator' };
 
         if(this.password) {
             if(crypto.createHash('md5').update(password).digest('hex') !== this.password) {
