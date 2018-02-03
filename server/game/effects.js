@@ -535,6 +535,26 @@ const Effects = {
             }
         };
     },
+    sacrificeIfControl: function(cardName, callback = () => true) {
+        return {
+            apply: function(card, context) {
+                context.sacrificeIfControl = context.sacrificeIfControl || [];
+                context.sacrificeIfControl.push(card);
+            },
+            reapply: function(card, context) {
+                if(card.location === 'play area' && card.controller.anyCardsInPlay(c => c.name === cardName) && context.sacrificeIfControl.includes(card)) {
+                    context.sacrificeIfControl = context.sacrificeIfControl.filter(c => c !== card);
+                    card.owner.sacrificeCard(card);
+                    context.game.addMessage('{0} sacrifices {1} because they control {2}', card.controller, card, cardName);
+                    callback();
+                }
+            },
+            unapply: function(card, context) {
+                context.sacrificeIfControl = context.sacrificeIfControl.filter(c => c !== card);
+            },
+            isStateDependent: true
+        };
+    },
     discardIfStillInPlay: function(allowSave = false) {
         return {
             apply: function(card, context) {

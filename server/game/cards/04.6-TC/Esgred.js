@@ -1,32 +1,23 @@
 const DrawCard = require('../../drawcard.js');
 
 class Esgred extends DrawCard {
-    constructor(owner, cardData) {
-        super(owner, cardData);
-
-        this.registerEvents(['onCardEntersPlay']);
-    }
-
     setupCardAbilities(ability) {
         this.persistentEffect({
             match: this,
-            effect: ability.effects.addStealthLimit(1)
+            effect: [
+                ability.effects.addStealthLimit(1),
+                ability.effects.sacrificeIfControl('Asha Greyjoy', () => this.gainPowerForAsha())
+            ]
         });
     }
 
-    onCardEntersPlay(event) {
-        let card = event.card;
-        if(card !== this && card.name !== 'Asha Greyjoy') {
-            return;
-        }
-
+    gainPowerForAsha() {
         let asha = this.controller.findCardByName(this.controller.cardsInPlay, 'Asha Greyjoy');
 
         if(!asha) {
             return;
         }
 
-        this.controller.sacrificeCard(this);
         asha.modifyPower(1);
     }
 }

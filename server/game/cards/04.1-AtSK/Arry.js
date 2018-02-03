@@ -2,7 +2,10 @@ const DrawCard = require('../../drawcard.js');
 
 class Arry extends DrawCard {
     setupCardAbilities(ability) {
-        // TODO: If you control Arya, sacrifice Arry.
+        this.persistentEffect({
+            match: this,
+            effect: ability.effects.sacrificeIfControl('Arya Stark')
+        });
         this.action({
             title: 'Draw 1 card',
             cost: ability.costs.returnSelfToHand(),
