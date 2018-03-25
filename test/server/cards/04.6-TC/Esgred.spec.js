@@ -2,11 +2,11 @@ describe('Esgred', function() {
     integration(function() {
         beforeEach(function() {
             const deck1 = this.buildDeck('greyjoy', [
-                'Trading with the Pentoshi',
+                'Trading with the Pentoshi', 'Fortified Position',
                 'Esgred', 'Asha Greyjoy (Core)'
             ]);
             const deck2 = this.buildDeck('lannister', [
-                'Trading with the Pentoshi',
+                'Trading with the Pentoshi', 'Fortified Position',
                 'Hedge Knight', 'Hedge Knight'
             ]);
             this.player1.selectDeck(deck1);
@@ -77,6 +77,28 @@ describe('Esgred', function() {
 
             it('should sacrifice Esgred', function() {
                 expect(this.esgred.location).toBe('discard pile');
+            });
+        });
+
+        describe('when Asha is in play and Esgred enters play during Fortified Position', function() {
+            beforeEach(function() {
+                this.player1.clickCard(this.asha);
+                this.completeMarshalPhase();
+                this.completeChallengesPhase();
+
+                this.player1.selectPlot('Fortified Position');
+                this.player2.selectPlot('Fortified Position');
+                this.selectFirstPlayer(this.player1);
+
+                this.player1.clickCard(this.esgred);
+            });
+
+            it('should not have Asha gain power', function() {
+                expect(this.asha.power).toBe(0);
+            });
+
+            it('should not sacrifice Esgred', function() {
+                expect(this.esgred.location).not.toBe('discard pile');
             });
         });
     });
