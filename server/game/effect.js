@@ -54,7 +54,7 @@ class Effect {
         this.effect = this.buildEffect(properties.effect);
         this.targets = [];
         this.context = { game: game, source: source };
-        this.active = !source.facedown;
+        this.active = false; // !source.facedown;
         this.isConditional = !!properties.condition || this.targetType === 'player' && _.isFunction(properties.match);
         this.isStateDependent = this.isConditional || this.effect.isStateDependent;
     }
@@ -65,6 +65,10 @@ class Effect {
         }
 
         return effect;
+    }
+
+    shouldBeActive() {
+        return !this.source.facedown && this.isInActiveLocation() && (this.duration !== 'persistent' || !this.source.isBlank());
     }
 
     isInActiveLocation() {

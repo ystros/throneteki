@@ -13,23 +13,24 @@ class EffectEngine {
     }
 
     add(effect) {
-        if(!effect.isInActiveLocation()) {
-            return;
-        }
+        // if(!effect.isInActiveLocation()) {
+        //     return;
+        // }
+        // console.log('adding effect for', effect.source.name);
 
         this.effects.push(effect);
         this.effects = _.sortBy(this.effects, effect => effect.order);
-        effect.addTargets(this.getTargets());
+        effect.setActive(effect.shouldBeActive(), this.getTargets());
         if(effect.duration === 'custom') {
             this.registerCustomDurationEvents(effect);
         }
     }
 
     addSimultaneous(effects) {
-        let sortedEffects = _.sortBy(effects, effect => effect.order);
-        for(let effect of sortedEffects) {
-            this.add(effect);
-        }
+        // let sortedEffects = _.sortBy(effects, effect => effect.order);
+        // for(let effect of sortedEffects) {
+        //     this.add(effect);
+        // }
     }
 
     getTargets() {
@@ -77,10 +78,17 @@ class EffectEngine {
     }
 
     onCardMoved(event) {
+        // console.log('moving', event.card.name, 'to', event.newLocation);
+        // console.log('effects', this.effects.map(e => e.source.name));
         let newArea = event.newLocation === 'hand' ? 'hand' : 'play area';
         this.removeTargetFromEffects(event.card, event.originalLocation);
         this.unapplyAndRemove(effect => effect.duration === 'persistent' && effect.source === event.card && (effect.location === event.originalLocation || event.parentChanged));
-        this.addTargetForPersistentEffects(event.card, newArea);
+        // this.addTargetForPersistentEffects(event.card, newArea);
+        let targets = this.getTargets();
+        for(let effect of this.effects) {
+            // console.log('applying effect for', effect.source.name);
+            effect.setActive(effect.shouldBeActive(), targets);
+        }
     }
 
     onCardTakenControl(event) {
@@ -208,7 +216,7 @@ class EffectEngine {
         _.each(matchingEffects, effect => {
             effect.cancel();
         });
-        this.effects = remainingEffects;
+        // this.effects = remainingEffects;
     }
 }
 

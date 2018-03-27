@@ -328,9 +328,9 @@ class BaseCard {
 
     applyAnyLocationPersistentEffects() {
         _.each(this.abilities.persistentEffects, effect => {
-            if(effect.location === 'any') {
+            // if(effect.location === 'any') {
                 this.game.addEffect(this, effect);
-            }
+            // }
         });
     }
 
@@ -339,9 +339,9 @@ class BaseCard {
     }
 
     applyPersistentEffects() {
-        for(let effect of this.getPersistentEffects()) {
-            this.game.addEffect(this, effect);
-        }
+        // for(let effect of this.getPersistentEffects()) {
+        //     this.game.addEffect(this, effect);
+        // }
     }
 
     leavesPlay() {
