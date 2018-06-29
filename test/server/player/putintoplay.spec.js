@@ -12,7 +12,7 @@ describe('Player', function() {
 
         this.gameSpy.queueSimpleStep.and.callFake(func => func());
 
-        this.cardSpy = jasmine.createSpyObj('card', ['getType', 'getCost', 'isBestow', 'isUnique', 'applyPersistentEffects', 'moveTo', 'takeControl']);
+        this.cardSpy = jasmine.createSpyObj('card', ['getType', 'getCost', 'isBestow', 'isUnique', 'applyPersistentEffects', 'moveTo', 'removeFromPile', 'takeControl']);
         this.cardSpy.controller = this.player;
         this.cardSpy.owner = this.player;
         this.dupeCardSpy = jasmine.createSpyObj('dupecard', ['addDuplicate']);
@@ -291,7 +291,7 @@ describe('Player', function() {
             });
 
             it('should remove the card from the other player', function() {
-                expect(this.opponent.hand).not.toContain(this.cardSpy);
+                expect(this.cardSpy.removeFromPile).toHaveBeenCalled();
             });
 
             it('should transfer control to the player', function () {

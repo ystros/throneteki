@@ -1,8 +1,9 @@
-const Player = require('../../../server/game/player.js');
+const Player = require('../../../server/game/player');
+const GameActions = require('../../../server/game/GameActions');
 
 describe('Player', function() {
     beforeEach(function() {
-        this.gameSpy = jasmine.createSpyObj('game', ['on', 'raiseEvent', 'playerDecked']);
+        this.gameSpy = jasmine.createSpyObj('game', ['on', 'raiseEvent', 'playerDecked', 'resolveGameAction']);
 
         this.player = new Player('1', { username: 'Player 1', settings: {} }, true, this.gameSpy);
         this.player.initialise();
@@ -20,6 +21,8 @@ describe('Player', function() {
 
         this.player.selectedPlot = this.selectedPlotSpy;
         this.player.plotDeck = [this.selectedPlotSpy, this.anotherPlotSpy];
+
+        spyOn(GameActions, 'moveCard');
     });
 
     describe('flipPlotFaceup()', function() {
@@ -33,16 +36,14 @@ describe('Player', function() {
             });
 
             it('should move the plot to the active plot slot', function() {
-                expect(this.selectedPlotSpy.moveTo).toHaveBeenCalledWith('active plot');
-                expect(this.player.activePlot).toBe(this.selectedPlotSpy);
+                expect(GameActions.moveCard).toHaveBeenCalledWith(jasmine.objectContaining({
+                    card: this.selectedPlotSpy,
+                    location: 'active plot'
+                }));
             });
 
             it('should unselect the plot', function() {
                 expect(this.player.selectedPlot).toBeFalsy();
-            });
-
-            it('should remove the selected plot from the plot deck', function() {
-                expect(this.player.plotDeck).not.toContain(this.selectedPlotSpy);
             });
         });
     });
@@ -59,16 +60,10 @@ describe('Player', function() {
         });
 
         it('should move the plot to the revealed plots pile', function() {
-            expect(this.activePlotSpy.moveTo).toHaveBeenCalledWith('revealed plots');
-            expect(this.player.plotDiscard).toContain(this.activePlotSpy);
-        });
-
-        it('should have the plot leave play', function() {
-            expect(this.activePlotSpy.leavesPlay).toHaveBeenCalled();
-        });
-
-        it('should raise the onCardLeftPlay event', function() {
-            expect(this.gameSpy.raiseEvent).toHaveBeenCalledWith('onCardLeftPlay', { player: this.player, card: this.activePlotSpy });
+            expect(GameActions.moveCard).toHaveBeenCalledWith(jasmine.objectContaining({
+                card: this.activePlotSpy,
+                location: 'revealed plots'
+            }));
         });
 
         it('should raise the onPlotDiscarded event', function() {
@@ -88,14 +83,21 @@ describe('Player', function() {
             });
 
             it('should move the contents of the used plots pile back to the plots pile', function() {
-                expect(this.anotherPlotSpy.moveTo).toHaveBeenCalledWith('plot deck');
-                expect(this.player.plotDeck).toContain(this.anotherPlotSpy);
-                expect(this.player.plotDiscard).not.toContain(this.anotherPlotSpy);
+                expect(GameActions.moveCard).toHaveBeenCalledWith(jasmine.objectContaining({
+                    card: this.anotherPlotSpy,
+                    location: 'plot deck'
+                }));
             });
 
             it('should not move the just revealed plot to any of the piles', function() {
-                expect(this.player.plotDeck).not.toContain(this.selectedPlotSpy);
-                expect(this.player.plotDiscard).not.toContain(this.selectedPlotSpy);
+                expect(GameActions.moveCard).not.toHaveBeenCalledWith(jasmine.objectContaining({
+                    card: this.selectedPlotSpy,
+                    location: 'plot deck'
+                }));
+                expect(GameActions.moveCard).not.toHaveBeenCalledWith(jasmine.objectContaining({
+                    card: this.selectedPlotSpy,
+                    location: 'revealed plots'
+                }));
             });
         });
 
@@ -109,9 +111,10 @@ describe('Player', function() {
             });
 
             it('should not move the contents of the used plots pile back to the plots pile', function() {
-                expect(this.anotherPlotSpy.moveTo).not.toHaveBeenCalledWith('plot deck');
-                expect(this.player.plotDeck).not.toContain(this.anotherPlotSpy);
-                expect(this.player.plotDiscard).toContain(this.anotherPlotSpy);
+                expect(GameActions.moveCard).not.toHaveBeenCalledWith(jasmine.objectContaining({
+                    card: this.anotherPlotSpy,
+                    location: 'plot deck'
+                }));
             });
         });
     });

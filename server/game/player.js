@@ -12,6 +12,7 @@ const PlayActionPrompt = require('./gamesteps/playactionprompt.js');
 const PlayerPromptState = require('./playerpromptstate.js');
 const MinMaxProperty = require('./PropertyTypes/MinMaxProperty');
 const GoldSource = require('./GoldSource.js');
+const GameActions = require('./GameActions');
 
 const logger = require('../log.js');
 
@@ -651,7 +652,7 @@ class Player extends Spectator {
 
             card.facedown = this.game.currentPhase === 'setup';
             card.new = true;
-            this.moveCard(card, 'play area', { isDupe: !!dupeCard });
+            this.placeCardInPile(card, 'play area');
             card.takeControl(this);
             card.kneeled = playingType !== 'setup' && !!card.entersPlayKneeled || !!options.kneeled;
             card.wasAmbush = (playingType === 'ambush');
@@ -990,7 +991,7 @@ class Player extends Spectator {
 
     shuffleCardIntoDeck(card, allowSave = true) {
         this.game.applyGameAction('shuffleIntoDeck', card, card => {
-            this.moveCard(card, 'draw deck', { allowSave: allowSave }, () => {
+            this.moveCard(card, 'draw deck', { allowSave: allowSave }).thenExecute(() => {
                 this.shuffleDrawDeck();
             });
         });
@@ -1026,11 +1027,11 @@ class Player extends Spectator {
     removeAttachment(attachment, allowSave = true) {
         attachment.isBeingRemoved = true;
         if(attachment.isTerminal()) {
-            attachment.owner.moveCard(attachment, 'discard pile', { allowSave: allowSave }, () => {
+            attachment.owner.moveCard(attachment, 'discard pile', { allowSave: allowSave }).thenExecute(() => {
                 attachment.isBeingRemoved = false;
             });
         } else {
-            attachment.owner.moveCard(attachment, 'hand', { allowSave: allowSave }, () => {
+            attachment.owner.moveCard(attachment, 'hand', { allowSave: allowSave }).thenExecute(() => {
                 attachment.isBeingRemoved = false;
             });
         }
@@ -1048,7 +1049,7 @@ class Player extends Spectator {
         this.faction.cardData.strength = 0;
     }
 
-    moveCard(card, targetLocation, options = {}, callback) {
+    moveCard(card, targetLocation, options = {}) {
         let targetPile = this.getSourceList(targetLocation);
 
         options = _.extend({ allowSave: false, bottom: false, isDupe: false }, options);
@@ -1057,60 +1058,26 @@ class Player extends Spectator {
             return;
         }
 
-        if(card.owner !== this && targetLocation !== 'play area') {
-            card.owner.moveCard(card, targetLocation, options, callback);
-            return;
-        }
+        let targetPlayer = card.owner !== this && targetLocation !== 'play area' ? card.owner : this;
 
-        if(card.location === 'play area') {
-            var params = {
-                player: this,
-                card: card,
-                allowSave: options.allowSave,
-                automaticSaveWithDupe: true
-            };
+        let action = GameActions.moveCard({
+            card: card,
+            player: targetPlayer,
+            location: targetLocation,
+            bottom: options.bottom,
+            allowSave: options.allowSave
+        });
 
-            this.game.raiseEvent('onCardLeftPlay', params, () => {
-                this.synchronousMoveCard(card, targetLocation, options);
-
-                if(callback) {
-                    callback();
-                }
-            });
-            return;
-        }
-
-        this.synchronousMoveCard(card, targetLocation, options);
-        if(callback) {
-            callback();
-        }
+        return this.game.resolveGameAction(action);
     }
 
-    synchronousMoveCard(card, targetLocation, options = {}) {
-        this.removeCardFromPile(card);
+    placeCardInPile(card, targetLocation, options = {}) {
+        card.removeFromPile();
 
         let targetPile = this.getSourceList(targetLocation);
 
         if(!targetPile || targetPile.includes(card)) {
             return;
-        }
-
-        if(card.location === 'play area') {
-            for(const attachment of card.attachments) {
-                this.removeAttachment(attachment, false);
-            }
-
-            if(card.dupes.length !== 0) {
-                this.discardCards(card.dupes, false);
-            }
-        }
-
-        if(['play area', 'active plot'].includes(card.location)) {
-            card.leavesPlay();
-        }
-
-        if(card.location === 'active plot') {
-            this.game.raiseEvent('onCardLeftPlay', { player: this, card: card });
         }
 
         card.moveTo(targetLocation);
@@ -1121,10 +1088,6 @@ class Player extends Spectator {
             targetPile.unshift(card);
         } else {
             targetPile.push(card);
-        }
-
-        if(['dead pile', 'discard pile', 'revealed plots'].includes(targetLocation)) {
-            this.game.raiseEvent('onCardPlaced', { card: card, location: targetLocation, player: this });
         }
     }
 

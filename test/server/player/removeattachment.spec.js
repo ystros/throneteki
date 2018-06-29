@@ -1,9 +1,10 @@
-const Player = require('../../../server/game/player.js');
-const DrawCard = require('../../../server/game/drawcard.js');
+const Player = require('../../../server/game/player');
+const DrawCard = require('../../../server/game/drawcard');
+const GameActions = require('../../../server/game/GameActions');
 
 describe('Player', function() {
     beforeEach(function() {
-        this.gameSpy = jasmine.createSpyObj('game', ['addMessage', 'queueSimpleStep', 'raiseEvent', 'playerDecked']);
+        this.gameSpy = jasmine.createSpyObj('game', ['addMessage', 'playerDecked', 'queueSimpleStep', 'raiseEvent', 'resolveGameAction']);
         this.gameSpy.queueSimpleStep.and.callFake(step => step());
         this.player = new Player('1', {username: 'Player 1', settings: {}}, true, this.gameSpy);
         this.player.deck = {};
@@ -18,11 +19,8 @@ describe('Player', function() {
         this.player.cardsInPlay.push(this.card);
         this.player.attach(this.player, this.attachment, this.card);
 
-        this.gameSpy.raiseEvent.and.callFake((name, params, handler) => {
-            if(handler) {
-                handler(params);
-            }
-        });
+        spyOn(GameActions, 'moveCard');
+        this.gameSpy.resolveGameAction.and.returnValue(jasmine.createSpyObj('event', ['thenExecute']));
     });
 
     describe('removeAttachment', function() {
@@ -37,21 +35,12 @@ describe('Player', function() {
                 this.player.removeAttachment(this.attachment);
             });
 
-            it('should leave play', function() {
-                expect(this.attachment.leavesPlay).toHaveBeenCalled();
-            });
-
-            it('should remove the attachment from its parent', function() {
-                expect(this.card.attachments).not.toContain(this.attachment);
-            });
-
-            it('should unset its parent property', function() {
-                expect(this.attachment.parent).toBeUndefined();
-            });
-
             it('should return the attachment to its owners discard pile', function() {
-                expect(this.attachmentOwner.hand).not.toContain(this.attachment);
-                expect(this.attachmentOwner.discardPile).toContain(this.attachment);
+                expect(GameActions.moveCard).toHaveBeenCalledWith(jasmine.objectContaining({
+                    card: this.attachment,
+                    player: this.attachmentOwner,
+                    location: 'discard pile'
+                }));
             });
         });
 
@@ -61,21 +50,12 @@ describe('Player', function() {
                 this.player.removeAttachment(this.attachment);
             });
 
-            it('should leave play', function() {
-                expect(this.attachment.leavesPlay).toHaveBeenCalled();
-            });
-
-            it('should remove the attachment from its parent', function() {
-                expect(this.card.attachments).not.toContain(this.attachment);
-            });
-
-            it('should unset its parent property', function() {
-                expect(this.attachment.parent).toBeUndefined();
-            });
-
             it('should return the attachment to its owners hand', function() {
-                expect(this.attachmentOwner.hand).toContain(this.attachment);
-                expect(this.attachmentOwner.discardPile).not.toContain(this.attachment);
+                expect(GameActions.moveCard).toHaveBeenCalledWith(jasmine.objectContaining({
+                    card: this.attachment,
+                    player: this.attachmentOwner,
+                    location: 'hand'
+                }));
             });
         });
     });

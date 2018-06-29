@@ -17,7 +17,7 @@ class ObellaSand extends DrawCard {
                 }
 
                 this.game.addMessage('{0} shuffles {1} back into their deck', player, this);
-                player.moveCard(this, 'draw deck', {}, () => {
+                player.moveCard(this, 'draw deck').thenExecute(() => {
                     player.shuffleDrawDeck();
                 });
             }

@@ -392,6 +392,11 @@ class BaseCard {
         this.tokens = {};
     }
 
+    removeFromPile() {
+        this.controller.removeCardFromPile(this);
+        this.takeControl(this.owner);
+    }
+
     moveTo(targetLocation, parent) {
         let originalLocation = this.location;
         let originalParent = this.parent;

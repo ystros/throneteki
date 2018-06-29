@@ -151,9 +151,9 @@ describe('effects', function() {
                 this.keepStartingHands();
 
                 this.character = this.player1.findCardByName('Eddard Stark');
-                this.player1Object.moveCard(this.character, 'hand');
+                this.player1.dragCard(this.character, 'hand');
                 let tyene = this.player2.findCardByName('Tyene Sand (TS)');
-                this.player2Object.moveCard(tyene, 'hand');
+                this.player2.dragCard(tyene, 'hand');
 
                 this.player1.clickCard(this.character);
                 this.player2.clickCard('Tyene Sand (TS)', 'hand');
