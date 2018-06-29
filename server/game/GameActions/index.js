@@ -1,6 +1,7 @@
 const AbilityAdapter = require('./AbilityAdapter');
 const MoveCard = require('./MoveCard');
 const PlaceCard = require('./PlaceCard');
+const Sacrifice = require('./Sacrifice');
 const ShuffleIntoDeck = require('./ShuffleIntoDeck');
 
 function actionFactory(action) {
@@ -12,6 +13,7 @@ function actionFactory(action) {
 const GameActions = {
     moveCard: actionFactory(MoveCard),
     placeCard: actionFactory(PlaceCard),
+    sacrifice: actionFactory(Sacrifice),
     shuffleIntoDeck: actionFactory(ShuffleIntoDeck)
 };
 
