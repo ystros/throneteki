@@ -32,6 +32,7 @@ const InterruptWindow = require('./gamesteps/InterruptWindow');
 const KillCharacters = require('./gamesteps/killcharacters.js');
 const TitlePool = require('./TitlePool.js');
 const Event = require('./event.js');
+const NullEvent = require('./NullEvent');
 const AtomicEvent = require('./AtomicEvent.js');
 const GroupedCardEvent = require('./GroupedCardEvent.js');
 const SimultaneousEvents = require('./SimultaneousEvents');
@@ -866,6 +867,16 @@ class Game extends EventEmitter {
 
     resolveEvent(event) {
         this.queueStep(new EventWindow(this, event, () => this.postEventCalculations()));
+    }
+
+    resolveGameAction(action, props) {
+        if(!action.allow(props)) {
+            return new NullEvent();
+        }
+
+        let event = action.createEvent(props);
+        this.resolveEvent(event);
+        return event;
     }
 
     /**
