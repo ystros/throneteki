@@ -1,4 +1,5 @@
-const Player = require('../../../server/game/player.js');
+const Player = require('../../../server/game/player');
+const DiscardCard = require('../../../server/game/GameActions/DiscardCard');
 
 describe('Player', function() {
 
@@ -10,22 +11,13 @@ describe('Player', function() {
     }
 
     beforeEach(function() {
-        this.gameSpy = jasmine.createSpyObj('game', ['applyGameAction', 'raiseSimultaneousEvent']);
-        this.gameSpy.applyGameAction.and.callFake((type, cards, handler) => {
-            if(cards.length > 0) {
-                handler(cards);
-            }
-        });
-        this.gameSpy.raiseSimultaneousEvent.and.callFake((cards, params) => {
-            this.handler = params.handler;
-            this.postHandler = params.postHandler;
-            this.perCardHandler = params.perCardHandler;
-        });
-
+        this.gameSpy = jasmine.createSpyObj('game', ['resolveEvent']);
         this.player = new Player('1', { username: 'Test 1', settings: {} }, true, this.gameSpy);
-        spyOn(this.player, 'moveCard');
-
         this.callbackSpy = jasmine.createSpy('callback');
+        this.childEventSpy = { event: 1 };
+
+        spyOn(DiscardCard, 'allow').and.returnValue(true);
+        spyOn(DiscardCard, 'createEvent').and.returnValue(this.childEventSpy);
 
         this.card1 = createCardSpy(1);
         this.card2 = createCardSpy(2);
@@ -37,59 +29,34 @@ describe('Player', function() {
                 this.player.discardCards([], false, this.callbackSpy);
             });
 
-            it('should not raise the event', function() {
-                expect(this.gameSpy.raiseSimultaneousEvent).not.toHaveBeenCalled();
+            it('should not resolve an event', function() {
+                expect(this.gameSpy.resolveEvent).not.toHaveBeenCalled();
             });
         });
 
         describe('when cards are passed', function() {
             beforeEach(function() {
                 this.player.discardCards([this.card1, this.card2], false, this.callbackSpy);
+                this.event = this.gameSpy.resolveEvent.calls.first().args[0];
             });
 
-            it('should raise the onCardsDiscarded event', function() {
-                expect(this.gameSpy.raiseSimultaneousEvent).toHaveBeenCalledWith([this.card1, this.card2], jasmine.objectContaining({
-                    eventName: 'onCardsDiscarded',
-                    postHandler: jasmine.any(Function),
-                    perCardEventName: 'onCardDiscarded',
-                    perCardHandler: jasmine.any(Function),
-                    params: jasmine.objectContaining({
-                        allowSave: false,
-                        automaticSaveWithDupe: true,
-                        originalLocation: 'loc'
-                    })
+            it('should resolve the onCardsDiscarded event', function() {
+                expect(this.event).toEqual(jasmine.objectContaining({
+                    name: 'onCardsDiscarded',
+                    cards: [this.card1, this.card2]
                 }));
             });
 
-            describe('the perCardHandler', function() {
-                beforeEach(function() {
-                    this.perCardHandler({ card: this.card1 });
-                });
-
-                it('should move the card to the discard pile', function() {
-                    expect(this.player.moveCard).toHaveBeenCalledWith(this.card1, 'discard pile');
-                });
+            it('should create individual discard events', function() {
+                expect(DiscardCard.createEvent).toHaveBeenCalledWith(jasmine.objectContaining({ card: this.card1 }));
+                expect(DiscardCard.createEvent).toHaveBeenCalledWith(jasmine.objectContaining({ card: this.card2 }));
             });
 
-            describe('the postHandler', function() {
-                beforeEach(function() {
-                    this.postHandler({ cards: [this.card1, this.card2] });
-                });
+            it('should add the callback as a post-handler', function() {
+                this.event.executePostHandler();
 
-                it('should call the callback with the appropriate cards', function() {
-                    expect(this.callbackSpy).toHaveBeenCalledWith([this.card1, this.card2]);
-                });
+                expect(this.callbackSpy).toHaveBeenCalledWith([this.card1, this.card2]);
             });
-        });
-    });
-
-    describe('discardCard()', function() {
-        beforeEach(function() {
-            this.player.discardCard(this.card1, false);
-        });
-
-        it('should raise the onCardsDiscarded event', function() {
-            expect(this.gameSpy.raiseSimultaneousEvent).toHaveBeenCalledWith([this.card1], jasmine.objectContaining({ eventName: 'onCardsDiscarded' }));
         });
     });
 });

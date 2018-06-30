@@ -13,6 +13,8 @@ const PlayerPromptState = require('./playerpromptstate.js');
 const MinMaxProperty = require('./PropertyTypes/MinMaxProperty');
 const GoldSource = require('./GoldSource.js');
 const GameActions = require('./GameActions');
+const DiscardCard = require('./GameActions/DiscardCard');
+const GroupedCardEvent = require('./GroupedCardEvent');
 
 const logger = require('../log.js');
 
@@ -931,26 +933,28 @@ class Player extends Spectator {
     }
 
     discardCards(cards, allowSave = true, callback = () => true, options = {}) {
-        this.game.applyGameAction('discard', cards, cards => {
-            var params = {
-                player: this,
-                allowSave: allowSave,
-                automaticSaveWithDupe: true,
-                originalLocation: cards[0].location
-            };
-            this.game.raiseSimultaneousEvent(cards, {
-                eventName: 'onCardsDiscarded',
-                params: params,
-                handler: () => true,
-                perCardEventName: 'onCardDiscarded',
-                perCardHandler: event => {
-                    this.moveCard(event.card, 'discard pile');
-                },
-                postHandler: event => {
-                    callback(event.cards);
-                }
-            });
-        }, { force: options.force });
+        let discardableCards = cards.filter(card => DiscardCard.allow({ card: card, allowSave: allowSave, force: options.force }));
+
+        if(discardableCards.length === 0) {
+            return;
+        }
+
+        let params = {
+            cards: discardableCards,
+            player: this,
+            allowSave: allowSave,
+            automaticSaveWithDupe: true,
+            originalLocation: discardableCards[0].location
+        };
+        let event = new GroupedCardEvent('onCardsDiscarded', params);
+        for(let card of discardableCards) {
+            event.addChildEvent(DiscardCard.createEvent({ card, allowSave }));
+        }
+        event.thenExecute(event => {
+            callback(event.cards);
+        });
+        this.game.resolveEvent(event);
+        return event;
     }
 
     returnCardToHand(card, allowSave = true) {
