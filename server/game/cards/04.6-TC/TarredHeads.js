@@ -12,8 +12,8 @@ class TarredHeads extends DrawCard {
             handler: context => {
                 let opponent = context.event.challenge.loser;
 
-                opponent.discardAtRandom(1, cards => {
-                    let card = cards[0];
+                opponent.discardAtRandom(1).thenExecute(event => {
+                    let card = event.cards[0];
                     let deadMessage = '';
 
                     if(card.getType() === 'character') {

@@ -13,7 +13,6 @@ describe('Player', function() {
     beforeEach(function() {
         this.gameSpy = jasmine.createSpyObj('game', ['resolveEvent']);
         this.player = new Player('1', { username: 'Test 1', settings: {} }, true, this.gameSpy);
-        this.callbackSpy = jasmine.createSpy('callback');
         this.childEventSpy = { event: 1 };
 
         spyOn(DiscardCard, 'allow').and.returnValue(true);
@@ -26,7 +25,7 @@ describe('Player', function() {
     describe('discardCards()', function() {
         describe('when no cards are passed', function() {
             beforeEach(function() {
-                this.player.discardCards([], false, this.callbackSpy);
+                this.player.discardCards([], false);
             });
 
             it('should not resolve an event', function() {
@@ -50,12 +49,6 @@ describe('Player', function() {
             it('should create individual discard events', function() {
                 expect(DiscardCard.createEvent).toHaveBeenCalledWith(jasmine.objectContaining({ card: this.card1 }));
                 expect(DiscardCard.createEvent).toHaveBeenCalledWith(jasmine.objectContaining({ card: this.card2 }));
-            });
-
-            it('should add the callback as a post-handler', function() {
-                this.event.executePostHandler();
-
-                expect(this.callbackSpy).toHaveBeenCalledWith([this.card1, this.card2]);
             });
         });
     });

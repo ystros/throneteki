@@ -38,7 +38,7 @@ class DiscardToReservePrompt extends BaseStep {
         // Reverse the order selection so that the first card selected ends up
         // on the top of the discard pile.
         cards = cards.reverse();
-        player.discardCards(cards, false, () => {
+        player.discardCards(cards).thenExecute(() => {
             this.game.addMessage('{0} discards {1} to meet reserve', player, cards);
             if(player.isBelowReserve()) {
                 this.remainingPlayers = this.remainingPlayers.slice(1);

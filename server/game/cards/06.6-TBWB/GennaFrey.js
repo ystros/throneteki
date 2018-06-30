@@ -10,9 +10,9 @@ class GennaFrey extends DrawCard {
             },
             handler: context => {
                 let numCards = this.hasOtherAttackingFrey() ? 2 : 1;
-                context.event.challenge.loser.discardAtRandom(numCards, cards => {
+                context.event.challenge.loser.discardAtRandom(numCards).thenExecute(event => {
                     this.game.addMessage('{0} uses {1} to discard {2} from {3}\'s hand',
-                        this.controller, this, cards, context.event.challenge.loser);
+                        this.controller, this, event.cards, context.event.challenge.loser);
                 });
             }
         });

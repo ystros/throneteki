@@ -23,7 +23,7 @@ class Melisandre extends DrawCard {
     onCardSelected(player, card) {
         let otherPlayer = card.controller;
 
-        otherPlayer.discardCards([card], true, () => {
+        otherPlayer.discardCard(card).thenExecute(() => {
             let charMessage = '';
 
             if(card.getType() === 'character') {

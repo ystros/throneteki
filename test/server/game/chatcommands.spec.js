@@ -1,10 +1,13 @@
 const ChatCommands = require('../../../server/game/chatcommands.js');
+const NullEvent = require('../../../server/game/NullEvent');
 
 describe('ChatCommands', function() {
     beforeEach(function() {
         this.gameSpy = jasmine.createSpyObj('game', ['addMessage', 'addAlert']);
 
         this.playerSpy = jasmine.createSpyObj('player', ['drawCardsToHand', 'discardAtRandom', 'discardFromDraw']);
+        this.playerSpy.discardAtRandom.and.returnValue(new NullEvent());
+        this.playerSpy.discardFromDraw.and.returnValue(new NullEvent());
         this.chatCommands = new ChatCommands(this.gameSpy);
     });
 
@@ -124,7 +127,7 @@ describe('ChatCommands', function() {
                 it('should discard 1 card', function () {
                     this.chatCommands.executeCommand(this.playerSpy, '/pillage', ['/pillage']);
 
-                    expect(this.playerSpy.discardFromDraw).toHaveBeenCalledWith(1, jasmine.any(Function));
+                    expect(this.playerSpy.discardFromDraw).toHaveBeenCalledWith(1);
                 });
             });
         });

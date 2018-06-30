@@ -15,6 +15,7 @@ const GoldSource = require('./GoldSource.js');
 const GameActions = require('./GameActions');
 const DiscardCard = require('./GameActions/DiscardCard');
 const GroupedCardEvent = require('./GroupedCardEvent');
+const NullEvent = require('./NullEvent');
 
 const logger = require('../log.js');
 
@@ -302,19 +303,18 @@ class Player extends Spectator {
         this.drawDeck = this.shuffleArray(this.drawDeck);
     }
 
-    discardFromDraw(number, callback = () => true) {
+    discardFromDraw(number) {
         number = Math.min(number, this.drawDeck.length);
 
         var cards = this.drawDeck.slice(0, number);
-        this.discardCards(cards, false, discarded => {
-            callback(discarded);
+        return this.discardCards(cards).thenExecute(() => {
             if(this.drawDeck.length === 0) {
                 this.game.playerDecked(this);
             }
         });
     }
 
-    discardAtRandom(number, callback = () => true) {
+    discardAtRandom(number) {
         var toDiscard = Math.min(number, this.hand.length);
         var cards = [];
 
@@ -327,9 +327,8 @@ class Player extends Spectator {
             }
         }
 
-        this.discardCards(cards, false, discarded => {
-            this.game.addMessage('{0} discards {1} at random', this, discarded);
-            callback(discarded);
+        return this.discardCards(cards).thenExecute(event => {
+            this.game.addMessage('{0} discards {1} at random', this, event.cards);
         });
     }
 
@@ -929,14 +928,14 @@ class Player extends Spectator {
     }
 
     discardCard(card, allowSave = true, options = {}) {
-        this.discardCards([card], allowSave, () => true, options);
+        return this.discardCards([card], allowSave, options);
     }
 
-    discardCards(cards, allowSave = true, callback = () => true, options = {}) {
+    discardCards(cards, allowSave = true, options = {}) {
         let discardableCards = cards.filter(card => DiscardCard.allow({ card: card, allowSave: allowSave, force: options.force }));
 
         if(discardableCards.length === 0) {
-            return;
+            return new NullEvent();
         }
 
         let params = {
@@ -950,9 +949,6 @@ class Player extends Spectator {
         for(let card of discardableCards) {
             event.addChildEvent(DiscardCard.createEvent({ card, allowSave }));
         }
-        event.thenExecute(event => {
-            callback(event.cards);
-        });
         this.game.resolveEvent(event);
         return event;
     }

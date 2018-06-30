@@ -8,8 +8,8 @@ class TheTickler extends DrawCard {
             chooseOpponent: true,
             cost: ability.costs.kneelSelf(),
             handler: context => {
-                context.opponent.discardFromDraw(1, cards => {
-                    let topCard = cards[0];
+                context.opponent.discardFromDraw(1).thenExecute(event => {
+                    let topCard = event.cards[0];
                     this.game.addMessage('{0} uses {1} to discard the top card of {2}\'s deck', this.controller, this, context.opponent);
 
                     this.game.promptForSelect(this.controller, {
