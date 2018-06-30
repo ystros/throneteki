@@ -109,5 +109,48 @@ describe('Valar Morghulis', function() {
                 expect(this.player2Object.deadPile.map(card => card.name)).toEqual(['Hedge Knight', 'Arya Stark', 'House Maester']);
             });
         });
+
+        describe('vs Marriage Pact', function() {
+            beforeEach(function() {
+                const deck = this.buildDeck('stark', [
+                    'A Noble Cause', 'Valar Morghulis',
+                    'Marriage Pact', 'Sansa Stark (Core)', 'Hedge Knight'
+                ]);
+
+                this.player1.selectDeck(deck);
+                this.player2.selectDeck(deck);
+                this.startGame();
+                this.keepStartingHands();
+
+                this.marriedCharacter = this.player1.findCardByName('Sansa Stark', 'hand');
+                this.otherCharacter = this.player1.findCardByName('Hedge Knight');
+                this.pact = this.player1.findCardByName('Marriage Pact', 'hand');
+
+                this.player1.clickCard(this.marriedCharacter);
+                this.player1.clickCard(this.otherCharacter);
+                this.player1.clickCard(this.pact);
+
+                this.completeSetup();
+
+                // Attach the pact
+                this.player1.clickCard(this.pact);
+                this.player1.clickCard(this.marriedCharacter);
+
+                this.player1.selectPlot('A Noble Cause');
+                this.player2.selectPlot('Valar Morghulis');
+                this.selectFirstPlayer(this.player1);
+
+                // Select character to sacrifice for Marriage pact
+                this.player1.clickCard(this.otherCharacter);
+            });
+
+            it('should place the selected character in discard', function() {
+                expect(this.otherCharacter.location).toBe('discard pile');
+            });
+
+            it('should kill the other character', function() {
+                expect(this.marriedCharacter.location).toBe('dead pile');
+            });
+        });
     });
 });

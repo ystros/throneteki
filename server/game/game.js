@@ -34,7 +34,6 @@ const TitlePool = require('./TitlePool.js');
 const Event = require('./event.js');
 const NullEvent = require('./NullEvent');
 const AtomicEvent = require('./AtomicEvent.js');
-const GroupedCardEvent = require('./GroupedCardEvent.js');
 const SimultaneousEvents = require('./SimultaneousEvents');
 const ChooseGoldSourceAmounts = require('./gamesteps/ChooseGoldSourceAmounts.js');
 const DropCommand = require('./ServerCommands/DropCommand');
@@ -847,21 +846,6 @@ class Game extends EventEmitter {
             let childEvent = new Event(childEventProperties.name, childEventProperties.params, childEventProperties.handler);
             event.addChildEvent(childEvent);
         }
-        this.queueStep(new EventWindow(this, event, () => this.postEventCalculations()));
-    }
-
-    /**
-     * Raises the same event across multiple cards as well as a wrapping plural
-     * version of the event that lists all cards.
-     */
-    raiseSimultaneousEvent(cards, properties) {
-        let event = new GroupedCardEvent(properties.eventName, _.extend({ cards: cards }, properties.params), properties.handler, properties.postHandler);
-        for(let card of cards) {
-            let perCardParams = _.extend({ card: card }, properties.params);
-            let childEvent = new Event(properties.perCardEventName, perCardParams, properties.perCardHandler);
-            event.addChildEvent(childEvent);
-        }
-
         this.queueStep(new EventWindow(this, event, () => this.postEventCalculations()));
     }
 

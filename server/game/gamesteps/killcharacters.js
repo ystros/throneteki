@@ -1,6 +1,8 @@
 const _ = require('underscore');
 
-const BaseStep = require('./basestep.js');
+const BaseStep = require('./basestep');
+const GroupedCardEvent = require('../GroupedCardEvent');
+const Kill = require('../GameActions/Kill');
 
 class KillCharacters extends BaseStep {
     constructor(game, cards, options) {
@@ -11,49 +13,44 @@ class KillCharacters extends BaseStep {
     }
 
     continue() {
-        let cardsInPlay = _.filter(this.cards, card => card.location === 'play area');
-        this.game.applyGameAction('killed', cardsInPlay, killable => {
-            _.each(killable, card => {
-                card.markAsInDanger();
-            });
+        let killable = this.cards.filter(card => Kill.allow({
+            allowSave: this.options.allowSave,
+            card: card,
+            force: this.options.force,
+            isBurn: this.options.isBurn
+        }));
 
-            this.game.raiseSimultaneousEvent(killable, {
-                eventName: 'onCharactersKilled',
-                params: {
-                    allowSave: this.options.allowSave,
-                    automaticSaveWithDupe: true,
-                    isBurn: this.options.isBurn,
-                    snapshots: killable.map(card => card.createSnapshot())
-                },
-                handler: event => this.handleMultipleKills(event),
-                perCardEventName: 'onCharacterKilled',
-                perCardHandler: event => this.doKill(event),
-                postHandler: () => this.promptForDeadPileOrder()
-            });
-            this.game.queueSimpleStep(() => {
-                _.each(killable, card => {
-                    card.clearDanger();
-                });
-            });
-        }, { force: this.options.force });
-    }
-
-    handleMultipleKills(event) {
-        this.event = event;
-
-        _.each(event.cards, card => {
-            this.automaticSave(card);
-        });
-    }
-
-    automaticSave(card) {
-        if(card.location !== 'play area') {
-            this.event.saveCard(card);
-        } else if(!card.canBeKilled() && !this.options.force) {
-            this.game.addMessage('{0} controlled by {1} cannot be killed',
-                card, card.controller);
-            this.event.saveCard(card);
+        if(killable.length === 0) {
+            return;
         }
+
+        for(let card of killable) {
+            card.markAsInDanger();
+        }
+
+        let params = {
+            allowSave: this.options.allowSave,
+            automaticSaveWithDupe: true,
+            cards: killable,
+            isBurn: this.options.isBurn,
+            snapshots: killable.map(card => card.createSnapshot())
+        };
+        this.event = new GroupedCardEvent('onCharactersKilled', params);
+        let childEvents = killable.map(card => Kill.createEvent({
+            allowSave: this.options.allowSave,
+            card: card,
+            isBurn: this.options.isBurn
+        }));
+        for(let childEvent of childEvents) {
+            this.event.addChildEvent(childEvent);
+        }
+        this.event.thenExecute(() => this.promptForDeadPileOrder())
+            .thenExecute(() => {
+                for(let card of killable) {
+                    card.clearDanger();
+                }
+            });
+        this.game.resolveEvent(this.event);
     }
 
     promptForDeadPileOrder() {
@@ -92,19 +89,6 @@ class KillCharacters extends BaseStep {
         for(let card of cards) {
             card.owner.moveCard(card, 'dead pile');
         }
-    }
-
-    doKill(event) {
-        let card = event.card;
-        let player = card.controller;
-
-        if(card.location !== 'play area') {
-            event.cancel();
-            return;
-        }
-
-        event.cardStateWhenKilled = card.createSnapshot();
-        this.game.addMessage('{0} kills {1}', player, card);
     }
 }
 
