@@ -312,14 +312,6 @@ class Player extends Spectator {
         });
     }
 
-    moveFromTopToBottomOfDrawDeck(number) {
-        while(number > 0) {
-            this.moveCard(this.drawDeck[0], 'draw deck', { bottom: true });
-
-            number--;
-        }
-    }
-
     discardAtRandom(number, callback = () => true) {
         var toDiscard = Math.min(number, this.hand.length);
         var cards = [];

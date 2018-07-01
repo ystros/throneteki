@@ -29,8 +29,9 @@ class Dorne extends DrawCard {
     }
 
     cardSelected(player, card) {
+        let otherCard = this.top2Cards.find(c => c !== card);
         player.moveCard(card, 'hand');
-        player.moveFromTopToBottomOfDrawDeck(1);
+        player.moveCard(otherCard, 'draw deck', { bottom: true });
 
         this.game.addMessage('{0} uses {1} to look at the top 2 cards of their deck, draw 1 and place the other on the bottom of their deck',
             player, this);

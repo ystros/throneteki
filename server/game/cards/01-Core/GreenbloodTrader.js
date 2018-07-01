@@ -27,8 +27,9 @@ class GreenbloodTrader extends DrawCard {
     }
 
     cardSelected(player, card) {
+        let otherCard = this.top2Cards.find(c => c !== card);
         player.moveCard(card, 'hand');
-        player.moveFromTopToBottomOfDrawDeck(1);
+        player.moveCard(otherCard, 'draw deck', { bottom: true });
 
         this.game.addMessage('{0} uses {1} to draw 2 cards, keep 1 and place the other on the bottom of their deck', player, this);
 
