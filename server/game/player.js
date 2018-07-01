@@ -13,9 +13,6 @@ const PlayerPromptState = require('./playerpromptstate.js');
 const MinMaxProperty = require('./PropertyTypes/MinMaxProperty');
 const GoldSource = require('./GoldSource.js');
 const GameActions = require('./GameActions');
-const DiscardCard = require('./GameActions/DiscardCard');
-const GroupedCardEvent = require('./GroupedCardEvent');
-const NullEvent = require('./NullEvent');
 
 const logger = require('../log.js');
 
@@ -304,32 +301,11 @@ class Player extends Spectator {
     }
 
     discardFromDraw(number) {
-        number = Math.min(number, this.drawDeck.length);
-
-        var cards = this.drawDeck.slice(0, number);
-        return this.discardCards(cards).thenExecute(() => {
-            if(this.drawDeck.length === 0) {
-                this.game.playerDecked(this);
-            }
-        });
+        return this.game.resolveGameAction(GameActions.discardTopCards({ player: this, amount: number }));
     }
 
     discardAtRandom(number) {
-        var toDiscard = Math.min(number, this.hand.length);
-        var cards = [];
-
-        while(cards.length < toDiscard) {
-            var cardIndex = _.random(0, this.hand.length - 1);
-
-            var card = this.hand[cardIndex];
-            if(!cards.includes(card)) {
-                cards.push(card);
-            }
-        }
-
-        return this.discardCards(cards).thenExecute(event => {
-            this.game.addMessage('{0} discards {1} at random', this, event.cards);
-        });
+        return this.game.resolveGameAction(GameActions.discardAtRandom({ player: this, amount: number }));
     }
 
     canInitiateChallenge(challengeType, opponent) {
@@ -932,25 +908,8 @@ class Player extends Spectator {
     }
 
     discardCards(cards, allowSave = true, options = {}) {
-        let discardableCards = cards.filter(card => DiscardCard.allow({ card: card, allowSave: allowSave, force: options.force }));
-
-        if(discardableCards.length === 0) {
-            return new NullEvent();
-        }
-
-        let params = {
-            cards: discardableCards,
-            player: this,
-            allowSave: allowSave,
-            automaticSaveWithDupe: true,
-            originalLocation: discardableCards[0].location
-        };
-        let event = new GroupedCardEvent('onCardsDiscarded', params);
-        for(let card of discardableCards) {
-            event.addChildEvent(DiscardCard.createEvent({ card, allowSave }));
-        }
-        this.game.resolveEvent(event);
-        return event;
+        let action = GameActions.discardCards({ cards, allowSave, force: options.force });
+        return this.game.resolveGameAction(action);
     }
 
     returnCardToHand(card, allowSave = true) {
