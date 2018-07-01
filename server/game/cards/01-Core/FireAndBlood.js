@@ -43,8 +43,7 @@ class FireAndBlood extends DrawCard {
     }
 
     shuffleCard(card) {
-        this.controller.moveCard(card, 'draw deck');
-        this.controller.shuffleDrawDeck();
+        this.controller.shuffleCardIntoDeck(card);
 
         this.game.addMessage('{0} plays {1} to remove {2} from their dead pile and shuffle it into their deck', this.controller, this, card);
     }

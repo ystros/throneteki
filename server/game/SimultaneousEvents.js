@@ -49,6 +49,11 @@ class SimultaneousEvents {
         return this.childEvents[0];
     }
 
+    thenExecute(func) {
+        this.childEvents[0].thenExecute(func);
+        return this;
+    }
+
     toString() {
         return `simultaneous(${this.childEvents.map(e => e.toString()).join(', ')})`;
     }

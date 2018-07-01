@@ -16,9 +16,7 @@ class BenjenStark extends DrawCard {
                 this.game.addPower(this.controller, 2);
                 context.replaceHandler(() => {
                     context.event.cardStateWhenKilled = this.createSnapshot();
-                    this.controller.moveCard(this, 'draw deck').thenExecute(() => {
-                        this.controller.shuffleDrawDeck();
-                    });
+                    this.controller.shuffleCardIntoDeck(this, false);
                 });
             }
         });

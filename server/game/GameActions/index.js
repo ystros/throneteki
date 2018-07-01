@@ -1,6 +1,7 @@
 const AbilityAdapter = require('./AbilityAdapter');
 const MoveCard = require('./MoveCard');
 const PlaceCard = require('./PlaceCard');
+const ShuffleIntoDeck = require('./ShuffleIntoDeck');
 
 function actionFactory(action) {
     return function(props) {
@@ -10,7 +11,8 @@ function actionFactory(action) {
 
 const GameActions = {
     moveCard: actionFactory(MoveCard),
-    placeCard: actionFactory(PlaceCard)
+    placeCard: actionFactory(PlaceCard),
+    shuffleIntoDeck: actionFactory(ShuffleIntoDeck)
 };
 
 module.exports = GameActions;

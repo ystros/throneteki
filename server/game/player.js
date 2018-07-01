@@ -982,11 +982,7 @@ class Player extends Spectator {
     }
 
     shuffleCardIntoDeck(card, allowSave = true) {
-        this.game.applyGameAction('shuffleIntoDeck', card, card => {
-            this.moveCard(card, 'draw deck', { allowSave: allowSave }).thenExecute(() => {
-                this.shuffleDrawDeck();
-            });
-        });
+        return this.game.resolveGameAction(GameActions.shuffleIntoDeck({ cards: [card], allowSave }));
     }
 
     /**

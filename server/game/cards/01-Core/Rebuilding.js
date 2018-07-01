@@ -10,11 +10,9 @@ class Rebuilding extends PlotCard {
             },
             handler: context => {
                 for(let card of context.target) {
-                    this.controller.moveCard(card, 'draw deck');
-
+                    this.controller.shuffleCardIntoDeck(card);
                 }
 
-                this.controller.shuffleDrawDeck();
                 this.game.addMessage('{0} uses {1} to shuffle {2} into their deck', this.controller, this, context.target);
             }
         });

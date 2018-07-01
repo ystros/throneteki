@@ -10,8 +10,7 @@ class IsleOfRavens extends DrawCard {
                 cardCondition: card => card.location === 'discard pile'
             },
             handler: context => {
-                context.target.owner.moveCard(context.target, 'draw deck');
-                context.target.owner.shuffleDrawDeck();
+                context.target.owner.shuffleCardIntoDeck(context.target);
                 this.game.addMessage('{0} kneels {1} to shuffle {2} back into {3}\'s deck',
                     this.controller, this, context.target, context.target.owner);
             }
