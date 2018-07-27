@@ -820,9 +820,8 @@ class Player extends Spectator {
             return;
         }
 
-        attachment.moveTo('play area', card);
+        card.addChildCard(attachment, 'play area');
         attachment.takeControl(controller);
-        card.attachments.push(attachment);
 
         this.game.queueSimpleStep(() => {
             attachment.applyPersistentEffects();

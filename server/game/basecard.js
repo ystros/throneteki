@@ -53,6 +53,7 @@ class BaseCard {
         this.traits = new ReferenceCountedSetProperty();
         this.blanks = new ReferenceCountedSetProperty();
         this.losesAspects = new ReferenceCountedSetProperty();
+        this.childCards = [];
         this.controllerStack = [];
 
         this.tokens = {};
@@ -311,6 +312,19 @@ class BaseCard {
     restoreAspect(aspect) {
         this.losesAspects.remove(aspect);
         this.markAsDirty();
+    }
+
+    addChildCard(card, location) {
+        this.childCards.push(card);
+        card.moveTo(location, this);
+    }
+
+    removeChildCard(card) {
+        if(!card) {
+            return;
+        }
+
+        this.childCards = this.childCards.filter(a => a !== card);
     }
 
     hasKeyword(keyword) {

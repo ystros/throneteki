@@ -11,9 +11,6 @@ class DrawCard extends BaseCard {
     constructor(owner, cardData) {
         super(owner, cardData);
 
-        this.dupes = [];
-        this.attachments = [];
-        this.childCards = [];
         this.icons = new ReferenceCountedSetProperty();
 
         for(let icon of this.getPrintedIcons()) {
@@ -39,14 +36,20 @@ class DrawCard extends BaseCard {
         this.eventPlacementLocation = 'discard pile';
     }
 
+    get attachments() {
+        return this.childCards.filter(card => card.location === 'play area');
+    }
+
+    get dupes() {
+        return this.childCards.filter(card => card.location === 'duplicate');
+    }
+
     createSnapshot() {
         let clone = new DrawCard(this.owner, this.cardData);
 
-        clone.attachments = this.attachments.map(attachment => attachment.createSnapshot());
         clone.blanks = this.blanks.clone();
         clone.childCards = this.childCards.map(card => card.createSnapshot());
         clone.controllerStack = [...this.controllerStack];
-        clone.dupes = this.dupes.map(dupe => dupe.createSnapshot());
         clone.factions = this.factions.clone();
         clone.icons = this.icons.clone();
         clone.losesAspects = this.losesAspects.clone();
@@ -71,26 +74,7 @@ class DrawCard extends BaseCard {
             return;
         }
 
-        this.dupes.push(card);
-        card.moveTo('duplicate', this);
-    }
-
-    removeDuplicate(force = false) {
-        var firstDupe = undefined;
-
-        if(!force) {
-            firstDupe = this.dupes.filter(dupe => {
-                return dupe.owner === this.controller;
-            })[0];
-        } else {
-            firstDupe = this.dupes[0];
-        }
-
-        this.dupes = this.dupes.filter(dupe => {
-            return dupe !== firstDupe;
-        });
-
-        return firstDupe;
+        this.addChildCard(card, 'duplicate');
     }
 
     isShadow() {
@@ -340,21 +324,6 @@ class DrawCard extends BaseCard {
         let context = { player: player };
 
         return this.attachmentRestrictions.some(restriction => restriction(card, context));
-    }
-
-    addChildCard(card, location) {
-        this.childCards.push(card);
-        card.moveTo(location, this);
-    }
-
-    removeChildCard(card) {
-        if(!card) {
-            return;
-        }
-
-        this.attachments = this.attachments.filter(a => a !== card);
-        this.dupes = this.dupes.filter(a => a !== card);
-        this.childCards = this.childCards.filter(a => a !== card);
     }
 
     getPlayActions() {
