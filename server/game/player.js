@@ -566,7 +566,7 @@ class Player extends Spectator {
 
             card.facedown = this.game.currentPhase === 'setup';
             card.new = true;
-            this.moveCard(card, 'play area', { isDupe: !!dupeCard });
+            this.placeCardInPile(card, 'play area', { isDupe: !!dupeCard });
             card.takeControl(this);
             card.kneeled = playingType !== 'setup' && !!card.entersPlayKneeled || !!options.kneeled;
 
@@ -1013,14 +1013,6 @@ class Player extends Spectator {
     }
 
     synchronousMoveCard(card, targetLocation, options = {}) {
-        this.removeCardFromPile(card);
-
-        let targetPile = this.getSourceList(targetLocation);
-
-        if(!targetPile || targetPile.includes(card)) {
-            return;
-        }
-
         if(card.location === 'play area') {
             for(const attachment of card.attachments) {
                 this.removeAttachment(attachment, false);
@@ -1037,6 +1029,18 @@ class Player extends Spectator {
 
         if(card.location === 'active plot') {
             this.game.raiseEvent('onCardLeftPlay', { player: this, card: card });
+        }
+
+        this.placeCardInPile(card, targetLocation, options);
+    }
+
+    placeCardInPile(card, targetLocation, options = {}) {
+        this.removeCardFromPile(card);
+
+        let targetPile = this.getSourceList(targetLocation);
+
+        if(!targetPile || targetPile.includes(card)) {
+            return;
         }
 
         card.moveTo(targetLocation);
