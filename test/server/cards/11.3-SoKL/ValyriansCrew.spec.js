@@ -1,4 +1,4 @@
-describe('Valyrian\'s Crew', function() {
+fdescribe('Valyrian\'s Crew', function() {
     beforeAll(function() {
         this.setupTopCardUnderCrew = function(cardName) {
             const deck1 = this.buildDeck('baratheon', [
@@ -38,6 +38,8 @@ describe('Valyrian\'s Crew', function() {
 
             // Trigger the ability
             this.player1.triggerAbility(this.crew);
+
+            this.attachment = this.crew.attachments[0];
         };
     });
 
@@ -48,11 +50,11 @@ describe('Valyrian\'s Crew', function() {
             });
 
             it('should add the top card as a facedown attachment', function() {
-                expect(this.crew.attachments).toContain(this.topCard);
-                expect(this.topCard.facedown).toBe(true);
-                expect(this.topCard).toBeControlledBy(this.player1);
-                expect(this.topCard.getType()).toBe('attachment');
-                expect(this.topCard.isTerminal()).toBe(true);
+                expect(this.attachment.facedown).toBe(true);
+                expect(this.attachment).toBeControlledBy(this.player1);
+                expect(this.attachment.getType()).toBe('attachment');
+                expect(this.attachment.isTerminal()).toBe(true);
+                expect(this.attachment.wrappedCard).toBe(this.topCard);
             });
 
             describe('and the stealing player tries to marshal it', function() {
@@ -69,7 +71,7 @@ describe('Valyrian\'s Crew', function() {
                 });
 
                 it('should allow the character to be marshalled', function() {
-                    this.player1.clickCard(this.topCard);
+                    this.player1.clickCard(this.attachment);
 
                     expect(this.player1Object.cardsInPlay).toContain(this.topCard);
                     expect(this.topCard.location).toBe('play area');
@@ -78,7 +80,7 @@ describe('Valyrian\'s Crew', function() {
                 });
 
                 it('should apply effects to the newly marshalled card', function() {
-                    this.player1.clickCard(this.topCard);
+                    this.player1.clickCard(this.attachment);
 
                     // Printed 2 STR - 1 STR from Blood of the Dragon
                     expect(this.topCard.getStrength()).toBe(1);
@@ -120,11 +122,40 @@ describe('Valyrian\'s Crew', function() {
             it('should allow it to be attached regardless of restrictions', function() {
                 // Longclaw can normally only be attached to a Night's Watch
                 // character, but while facedown does not have such a restriction
-                expect(this.crew.attachments).toContain(this.topCard);
+                expect(this.crew.attachments.length).toBe(1);
             });
 
             it('should not grant effects that attachment normally grants', function() {
                 expect(this.crew.getStrength()).toBe(this.crew.getPrintedStrength());
+            });
+        });
+
+        describe('when attaching a facedown attachment with an ability', function() {
+            beforeEach(function() {
+                // Ruby of R'hllor can be used in the same window as Valyrian's
+                // Crew, so if it were face up, it could be triggered after
+                // being attached. But since it will be facedown, it should not
+                // be triggerable.
+                this.setupTopCardUnderCrew('Ruby of R\'hllor');
+            });
+
+            it('should not allow the ability to be triggered', function() {
+                expect(this.player1).not.toAllowAbilityTrigger(this.attachment);
+                expect(this.player1).not.toAllowAbilityTrigger(this.topCard);
+            });
+        });
+
+        describe('when attaching a facedown Bestow card', function() {
+            beforeEach(function() {
+                // Ruby of R'hllor can be used in the same window as Valyrian's
+                // Crew, so if it were face up, it could be triggered after
+                // being attached. But since it will be facedown, it should not
+                // be triggerable.
+                this.setupTopCardUnderCrew('Oldtown Informer');
+            });
+
+            it('should not prompt for bestow', function() {
+                expect(this.player1).not.toHavePrompt('Select bestow amount for Oldtown Informer');
             });
         });
 
@@ -144,7 +175,7 @@ describe('Valyrian\'s Crew', function() {
             });
 
             it('should allow it to be marshalled', function() {
-                this.player1.clickCard(this.topCard);
+                this.player1.clickCard(this.attachment);
                 this.player1.clickCard(this.crew);
 
                 expect(this.topCard.facedown).toBe(false);
@@ -162,7 +193,7 @@ describe('Valyrian\'s Crew', function() {
             });
 
             it('should allow it to be played', function() {
-                this.player1.clickCard(this.topCard);
+                this.player1.clickCard(this.attachment);
                 this.player1.clickCard(this.crew);
 
                 expect(this.crew.isAnyBlank()).toBe(true);
@@ -175,7 +206,7 @@ describe('Valyrian\'s Crew', function() {
             });
 
             it('should allow it to be played', function() {
-                expect(this.player1).toAllowAbilityTrigger(this.topCard);
+                expect(this.player1).toAllowAbilityTrigger(this.attachment);
             });
         });
     });

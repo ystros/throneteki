@@ -1,4 +1,5 @@
 const DrawCard = require('../../drawcard');
+const FacedownDrawCard = require('../../FacedownDrawCard');
 
 class ValyriansCrew extends DrawCard {
     setupCardAbilities(ability) {
@@ -16,12 +17,17 @@ class ValyriansCrew extends DrawCard {
             handler: context => {
                 let opponent = context.event.challenge.loser;
                 let topCard = opponent.drawDeck[0];
+                let attachment = new FacedownDrawCard(topCard);
 
-                context.player.attach(context.player, topCard, this, 'play', true);
+                context.player.attach(context.player, attachment, this, 'play', true);
+
+                // The "as an attachment with terminal" effect is a lasting
+                // effect, so the terminal keyword is not part of the facedown
+                // card's text and thus cannot be blanked.
                 this.lastingEffect(() => ({
-                    condition: () => !!topCard.parent,
+                    condition: () => !!attachment.parent,
                     targetLocation: 'any',
-                    match: topCard,
+                    match: attachment,
                     effect: [
                         ability.effects.setCardType('attachment'),
                         ability.effects.addKeyword('Terminal')
@@ -34,7 +40,7 @@ class ValyriansCrew extends DrawCard {
     }
 
     isFacedownAttachment(card) {
-        return card.facedown && card.controller === this.controller && card.getType() === 'attachment' && this.attachments.includes(card);
+        return this.attachments.some(attachment => attachment.facedown && attachment.controller === this.controller && attachment.wrappedCard === card);
     }
 }
 

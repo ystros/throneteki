@@ -465,7 +465,7 @@ class Player extends Spectator {
         let context = new AbilityContext({
             game: this.game,
             player: this,
-            source: card
+            source: card.wrappedCard || card
         });
         var playActions = _.filter(card.getPlayActions(), action => action.meetsRequirements(context) && action.canPayCosts(context) && action.canResolveTargets(context));
 
@@ -1041,6 +1041,13 @@ class Player extends Spectator {
 
         if(!targetPile || targetPile.includes(card)) {
             return;
+        }
+
+        // If the card being moved out of play is a wrapped card of some sort
+        // (e.g. FacedownDrawCard), then unwrap the card before placing it.
+        if(targetLocation !== 'play area' && card.wrappedCard) {
+            this.game.allCards.filter(c => c === card);
+            card = card.wrappedCard;
         }
 
         card.moveTo(targetLocation);
