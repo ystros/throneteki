@@ -268,6 +268,28 @@ class DrawCard extends BaseCard {
         return Icons.filter(icon => !!this.cardData.icons[icon]);
     }
 
+    getIconStatus() {
+        let status = {};
+
+        if(this.getType() !== 'character') {
+            return;
+        }
+
+        for(let icon of Icons) {
+            if(this.icons.contains(icon) && !this.cardData.icons[icon]) {
+                status[icon] = 'gained';
+            } else if(!this.icons.contains(icon) && this.cardData.icons[icon]) {
+                status[icon] = 'lost';
+            } else if(this.cardData.icons[icon]) {
+                status[icon] = 'printed';
+            } else {
+                status[icon] = 'none';
+            }
+        }
+
+        return status;
+    }
+
     getIconsAdded() {
         return _.difference(this.getIcons(), this.getPrintedIcons());
     }
@@ -501,6 +523,7 @@ class DrawCard extends BaseCard {
 
         return Object.assign(baseSummary, publicSummary, {
             baseStrength: this.cardData.strength,
+            iconStatus: this.getIconStatus(),
             iconsAdded: this.getIconsAdded(),
             iconsRemoved: this.getIconsRemoved(),
             inChallenge: this.inChallenge,
