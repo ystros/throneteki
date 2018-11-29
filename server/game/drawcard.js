@@ -506,6 +506,7 @@ class DrawCard extends BaseCard {
             childCards: this.childCards.map(card => {
                 return card.getSummary(activePlayer);
             }),
+            cost: this.getPrintedCost(),
             dupes: this.dupes.map(dupe => {
                 if(dupe.dupes.length !== 0) {
                     throw new Error('A dupe should not have dupes! ' + dupe.name);
