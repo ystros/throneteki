@@ -12,8 +12,17 @@ class AbilityTarget {
         this.selector = CardSelector.for(properties);
     }
 
+    getEligibleTargets(context) {
+        return this.selector.getEligibleTargets(context);
+    }
+
     canResolve(context) {
-        return this.selector.hasEnoughTargets(context);
+        try {
+            context.choosingPlayer = this.getChoosingPlayer(context);
+            return this.selector.hasEnoughTargets(context);
+        } finally {
+            context.choosingPlayer = null;
+        }
     }
 
     resolve(context) {

@@ -106,6 +106,9 @@ class TriggeredAbility extends BaseAbility {
             return false;
         }
 
+        let graph = this.opponentGenerator(context);
+        console.log(graph);
+
         if(!this.canResolveOpponents(context) || !this.canPayCosts(context) || !this.canResolveTargets(context)) {
             return false;
         }

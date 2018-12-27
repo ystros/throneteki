@@ -145,6 +145,65 @@ class BaseAbility {
         return !!this.chooseOpponentFunc;
     }
 
+    opponentGenerator(context) {
+        if(!this.needsChooseOpponent()) {
+            return this.targetGenerator(context);
+        }
+
+        let opponents = context.game.getPlayers().filter(player => player !== context.player && this.canChooseOpponent(context));
+        let result = [];
+
+        for(let opponent of opponents) {
+            try {
+                context.opponent = opponent;
+                result = result.concat(this.targetGenerator(context).map(targetResult => Object.assign({ opponent: opponent }, targetResult)));
+            } finally {
+                context.opponent = null;
+            }
+        }
+
+        return result;
+    }
+
+    targetGenerator(context) {
+        if(this.targets.length === 0) {
+            return [{}];
+        }
+
+        return this.targetGeneratorUtil(context, 0);
+    }
+
+    targetGeneratorUtil(context, i) {
+        if(i >= this.targets.length) {
+            return [{}];
+        }
+
+        let targetDefinition = this.targets[i];
+        let eligibleCards = targetDefinition.getEligibleTargets(context);
+
+        let result = [];
+
+        for(let card of eligibleCards) {
+            try {
+                context.targets[targetDefinition.name] = card;
+                if(targetDefinition.name === 'target') {
+                    context.target = card;
+                }
+                let nextTargetResults = this.targetGeneratorUtil(context, i + 1);
+                for(let nextTargetResult of nextTargetResults) {
+                    let copy = Object.assign({ targets: {} }, nextTargetResult);
+                    copy.targets[targetDefinition.name] = card;
+                    result.push(copy);
+                }
+            } finally {
+                context.target = null;
+                context.targets[targetDefinition.name] = null;
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Returns whether there are opponents that can be chosen, if the ability
      * requires that an opponent be chosen.

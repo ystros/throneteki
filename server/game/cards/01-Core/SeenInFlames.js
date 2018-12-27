@@ -7,15 +7,21 @@ class SeenInFlames extends DrawCard {
             phase: 'challenge',
             condition: () => this.controller.anyCardsInPlay(card => card.hasTrait('R\'hllor') && card.getType() === 'character'),
             chooseOpponent: opponent => opponent.hand.length !== 0,
+            target: {
+                activePromptTitle: 'Select a card',
+                revealTargets: true,
+                cardCondition: (card, context) => card.location === 'hand' && card.controller === context.opponent
+            },
             handler: context => {
                 this.game.addMessage('{0} plays {1} to look at {2}\'s hand', context.player, this, context.opponent);
-                this.game.promptForSelect(context.player, {
-                    activePromptTitle: 'Select a card',
-                    source: this,
-                    revealTargets: true,
-                    cardCondition: card => card.location === 'hand' && card.controller === context.opponent,
-                    onSelect: (player, card) => this.onCardSelected(player, card)
-                });
+                // this.game.promptForSelect(context.player, {
+                //     activePromptTitle: 'Select a card',
+                //     source: this,
+                //     revealTargets: true,
+                //     cardCondition: card => card.location === 'hand' && card.controller === context.opponent,
+                //     onSelect: (player, card) => this.onCardSelected(player, card)
+                // });
+                this.onCardSelected(context.player, context.target);
             }
         });
     }
