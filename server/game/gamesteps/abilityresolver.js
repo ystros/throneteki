@@ -126,7 +126,7 @@ class AbilityResolver extends BaseStep {
             return;
         }
 
-        this.targetResults = this.ability.resolveTargets(this.context);
+        this.ability.resolveTargets(this.context);
     }
 
     waitForTargetResolution() {
@@ -134,18 +134,15 @@ class AbilityResolver extends BaseStep {
             return;
         }
 
-        let cancelledTargeting = this.targetResults.some(result => result.resolved && !result.value);
-        if(cancelledTargeting) {
+        if(this.context.targets.isCancelled()) {
             this.cancelled = true;
             this.game.addAlert('danger', '{0} cancels the resolution of {1} (costs were still paid)', this.context.player, this.context.source);
             return;
         }
 
-        if(!this.targetResults.every(result => result.resolved)) {
+        if(!this.context.targets.isResolved()) {
             return false;
         }
-
-        this.context.targets.setSelections(this.targetResults);
 
         if(this.context.targets.hasTargets()) {
             this.game.raiseEvent('onTargetsChosen', { ability: this.ability, targets: this.context.targets }, () => {

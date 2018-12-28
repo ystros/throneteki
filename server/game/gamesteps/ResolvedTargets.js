@@ -9,6 +9,18 @@ class ResolvedTargets {
         this.selections = [];
     }
 
+    addSelection(selection) {
+        this.selections.push(selection);
+    }
+
+    isCancelled() {
+        return this.selections.some(selection => selection.resolved && !selection.value);
+    }
+
+    isResolved() {
+        return this.selections.every(selection => selection.resolved);
+    }
+
     anySelection(predicate) {
         return this.selections.some(predicate);
     }

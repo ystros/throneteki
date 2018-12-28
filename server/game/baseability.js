@@ -244,7 +244,9 @@ class BaseAbility {
      * @returns {Array} An array of target resolution objects.
      */
     resolveTargets(context) {
-        return this.targets.map(target => target.resolve(context));
+        for(let target of this.targets) {
+            target.resolve(context);
+        }
     }
 
     /**

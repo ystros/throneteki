@@ -57,7 +57,7 @@ class AbilityTarget {
             context.game.promptForSelect(choosingPlayer, _.extend(promptProperties, otherProperties));
         }
 
-        return result;
+        context.targets.addSelection(result);
     }
 
     getChoosingPlayer(context) {
