@@ -127,6 +127,19 @@ const Effects = {
     restrictAttachmentsTo: function(trait) {
         return Effects.addKeyword(`No attachments except <i>${trait}</i>`);
     },
+    gainText: function(textFunc) {
+        let text = new AbilityText();
+        textFunc(text);
+
+        return {
+            apply: function(card) {
+
+            },
+            unapply: function(card) {
+
+            }
+        };
+    },
     modifyStrength: function(value) {
         return {
             gameAction: value < 0 ? 'decreaseStrength' : 'increaseStrength',
