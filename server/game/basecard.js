@@ -200,7 +200,7 @@ class BaseCard {
     }
 
     doAction(player, arg) {
-        let action = this.printedAbilityText.getActionById(arg)
+        let action = this.printedAbilityText.getActionById(arg);
 
         if(!action) {
             return;
