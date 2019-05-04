@@ -6,6 +6,7 @@ const CardInterrupt = require('./cardinterrupt');
 const CardReaction = require('./cardreaction');
 const CardWhenRevealed = require('./cardwhenrevealed');
 const CustomPlayAction = require('./PlayActions/CustomPlayAction');
+const StandardPlayActions = require('./PlayActions/StandardActions');
 
 class AbilityText {
     constructor(game, source) {
@@ -15,6 +16,28 @@ class AbilityText {
         this.persistentEffects = [];
         this.game = game;
         this.source = source;
+    }
+
+    addAction(action) {
+        this.actions.push(action);
+    }
+
+    getPlayActions() {
+        return StandardPlayActions
+            .concat(this.playActions)
+            .concat(this.actions.filter(action => !action.allowMenu()));
+    }
+
+    getActionById(id) {
+        return this.actions[id];
+    }
+
+    getClickToActivateAction() {
+        return this.actions.find(action => action.isClickToActivate());
+    }
+
+    getWhenRevealedAbility() {
+        return this.reactions.find(ability => ability instanceof CardWhenRevealed);
     }
 
     plotModifiers(modifiers) {
@@ -46,7 +69,7 @@ class AbilityText {
 
     action(properties) {
         let action = new CardAction(this.game, this.source, properties);
-        this.actions.push(action);
+        this.addAction(action);
     }
 
     reaction(properties) {
@@ -122,6 +145,24 @@ class AbilityText {
         };
         let reaction = new CardWhenRevealed(this.game, this.source, Object.assign(whenClause, properties));
         this.reactions.push(reaction);
+    }
+
+    updateEventListening({ originalLocation, targetLocation }) {
+        for(let action of this.actions) {
+            if(action.isEventListeningLocation(targetLocation) && !action.isEventListeningLocation(originalLocation)) {
+                action.registerEvents();
+            } else if(action.isEventListeningLocation(originalLocation) && !action.isEventListeningLocation(targetLocation)) {
+                action.unregisterEvents();
+            }
+        }
+        for(let reaction of this.reactions) {
+            if(reaction.isEventListeningLocation(targetLocation) && !reaction.isEventListeningLocation(originalLocation)) {
+                reaction.registerEvents();
+            } else if(reaction.isEventListeningLocation(originalLocation) && !reaction.isEventListeningLocation(targetLocation)) {
+                reaction.unregisterEvents();
+                this.game.clearAbilityResolution(reaction);
+            }
+        }
     }
 }
 

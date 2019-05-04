@@ -1,7 +1,6 @@
 const BaseCard = require('./basecard.js');
 const CardMatcher = require('./CardMatcher.js');
 const ReferenceCountedSetProperty = require('./PropertyTypes/ReferenceCountedSetProperty');
-const StandardPlayActions = require('./PlayActions/StandardActions');
 const AbilityDsl = require('./abilitydsl');
 
 const Icons = ['military', 'intrigue', 'power'];
@@ -383,9 +382,7 @@ class DrawCard extends BaseCard {
     }
 
     getPlayActions() {
-        return StandardPlayActions
-            .concat(this.printedAbilityText.playActions)
-            .concat(this.printedAbilityText.actions.filter(action => !action.allowMenu()));
+        return this.printedAbilityText.getPlayActions();
     }
 
     leavesPlay() {

@@ -200,7 +200,7 @@ class BaseCard {
     }
 
     doAction(player, arg) {
-        var action = this.printedAbilityText.actions[arg];
+        let action = this.printedAbilityText.getActionById(arg)
 
         if(!action) {
             return;
@@ -376,21 +376,7 @@ class BaseCard {
             this.events.unregisterAll();
         }
 
-        for(let action of this.printedAbilityText.actions) {
-            if(action.isEventListeningLocation(targetLocation) && !action.isEventListeningLocation(originalLocation)) {
-                action.registerEvents();
-            } else if(action.isEventListeningLocation(originalLocation) && !action.isEventListeningLocation(targetLocation)) {
-                action.unregisterEvents();
-            }
-        }
-        for(let reaction of this.printedAbilityText.reactions) {
-            if(reaction.isEventListeningLocation(targetLocation) && !reaction.isEventListeningLocation(originalLocation)) {
-                reaction.registerEvents();
-            } else if(reaction.isEventListeningLocation(originalLocation) && !reaction.isEventListeningLocation(targetLocation)) {
-                reaction.unregisterEvents();
-                this.game.clearAbilityResolution(reaction);
-            }
-        }
+        this.printedAbilityText.updateEventListening({ targetLocation, originalLocation });
 
         if(targetLocation !== 'play area') {
             this.facedown = false;
@@ -591,7 +577,7 @@ class BaseCard {
     }
 
     onClick(player) {
-        var action = this.printedAbilityText.actions.find(action => action.isClickToActivate());
+        let action = this.printedAbilityText.getClickToActivateAction();
         if(action) {
             return action.execute(player) || action.deactivate(player);
         }

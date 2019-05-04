@@ -1,5 +1,4 @@
 const BaseCard = require('./basecard.js');
-const CardWhenRevealed = require('./cardwhenrevealed.js');
 
 class PlotCard extends BaseCard {
     constructor(owner, cardData) {
@@ -17,7 +16,7 @@ class PlotCard extends BaseCard {
     }
 
     getWhenRevealedAbility() {
-        return this.printedAbilityText.reactions.find(ability => ability instanceof CardWhenRevealed);
+        return this.printedAbilityText.getWhenRevealedAbility();
     }
 
     getInitiative() {
