@@ -13,17 +13,11 @@ class PlotCard extends BaseCard {
     }
 
     whenRevealed(properties) {
-        let whenClause = {
-            when: {
-                onPlotRevealed: event => event.plot === this
-            }
-        };
-        let reaction = new CardWhenRevealed(this.game, this, Object.assign(whenClause, properties));
-        this.abilities.reactions.push(reaction);
+        this.printedAbilityText.whenRevealed(properties);
     }
 
     getWhenRevealedAbility() {
-        return this.abilities.reactions.find(ability => ability instanceof CardWhenRevealed);
+        return this.printedAbilityText.reactions.find(ability => ability instanceof CardWhenRevealed);
     }
 
     getInitiative() {

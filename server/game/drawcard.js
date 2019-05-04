@@ -384,8 +384,8 @@ class DrawCard extends BaseCard {
 
     getPlayActions() {
         return StandardPlayActions
-            .concat(this.abilities.playActions)
-            .concat(this.abilities.actions.filter(action => !action.allowMenu()));
+            .concat(this.printedAbilityText.playActions)
+            .concat(this.printedAbilityText.actions.filter(action => !action.allowMenu()));
     }
 
     leavesPlay() {

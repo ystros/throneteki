@@ -1,12 +1,7 @@
 const uuid = require('uuid');
 
 const AbilityDsl = require('./abilitydsl');
-const CardAction = require('./cardaction');
-const CardForcedInterrupt = require('./cardforcedinterrupt');
-const CardForcedReaction = require('./cardforcedreaction');
-const CardInterrupt = require('./cardinterrupt');
-const CardReaction = require('./cardreaction');
-const CustomPlayAction = require('./PlayActions/CustomPlayAction');
+const AbilityText = require('./AbilityText');
 const EventRegistrar = require('./eventregistrar');
 const KeywordsProperty = require('./PropertyTypes/KeywordsProperty');
 const ReferenceCountedSetProperty = require('./PropertyTypes/ReferenceCountedSetProperty');
@@ -72,6 +67,7 @@ class BaseCard {
         this.events = new EventRegistrar(this.game, this);
 
         this.abilities = { actions: [], reactions: [], persistentEffects: [], playActions: [] };
+        this.printedAbilityText = new AbilityText(this.game, this);
         this.parseKeywords(cardData.text || '');
         for(let trait of cardData.traits || []) {
             this.addTrait(trait);
@@ -111,55 +107,27 @@ class BaseCard {
 
     plotModifiers(modifiers) {
         this.plotModifierValues = Object.assign(this.plotModifierValues, modifiers);
-        if(modifiers.gold) {
-            this.persistentEffect({
-                condition: () => this.canProvidePlotModifier['gold'],
-                match: card => card.controller.activePlot === card,
-                targetController: 'current',
-                effect: AbilityDsl.effects.modifyGold(modifiers.gold)
-            });
-        }
-        if(modifiers.initiative) {
-            this.persistentEffect({
-                condition: () => this.canProvidePlotModifier['initiative'],
-                match: card => card.controller.activePlot === card,
-                targetController: 'current',
-                effect: AbilityDsl.effects.modifyInitiative(modifiers.initiative)
-            });
-        }
-        if(modifiers.reserve) {
-            this.persistentEffect({
-                condition: () => this.canProvidePlotModifier['reserve'],
-                match: card => card.controller.activePlot === card,
-                targetController: 'current',
-                effect: AbilityDsl.effects.modifyReserve(modifiers.reserve)
-            });
-        }
+        this.printedAbilityText.plotModifiers(modifiers);
     }
 
     action(properties) {
-        var action = new CardAction(this.game, this, properties);
-        this.abilities.actions.push(action);
+        this.printedAbilityText.action(properties);
     }
 
     reaction(properties) {
-        var reaction = new CardReaction(this.game, this, properties);
-        this.abilities.reactions.push(reaction);
+        this.printedAbilityText.reaction(properties);
     }
 
     forcedReaction(properties) {
-        var reaction = new CardForcedReaction(this.game, this, properties);
-        this.abilities.reactions.push(reaction);
+        this.printedAbilityText.forcedReaction(properties);
     }
 
     interrupt(properties) {
-        var reaction = new CardInterrupt(this.game, this, properties);
-        this.abilities.reactions.push(reaction);
+        this.printedAbilityText.interrupt(properties);
     }
 
     forcedInterrupt(properties) {
-        var reaction = new CardForcedInterrupt(this.game, this, properties);
-        this.abilities.reactions.push(reaction);
+        this.printedAbilityText.forcedInterrupt(properties);
     }
 
     /**
@@ -167,7 +135,7 @@ class BaseCard {
      * play area (e.g. Lady-in-Waiting's dupe marshal ability)
      */
     playAction(properties) {
-        this.abilities.playActions.push(new CustomPlayAction(properties));
+        this.printedAbilityText.playAction(properties);
     }
 
     /**
@@ -175,20 +143,7 @@ class BaseCard {
      * is both in play and not blank.
      */
     persistentEffect(properties) {
-        const allowedLocations = ['active plot', 'agenda', 'any', 'play area', 'revealed plots', 'title'];
-        const defaultLocationForType = {
-            agenda: 'agenda',
-            plot: 'active plot',
-            title: 'title'
-        };
-
-        let location = properties.location || defaultLocationForType[this.getType()] || 'play area';
-
-        if(!allowedLocations.includes(location)) {
-            throw new Error(`'${location}' is not a supported effect location.`);
-        }
-
-        this.abilities.persistentEffects.push(Object.assign({ duration: 'persistent', location: location }, properties));
+        this.printedAbilityText.persistentEffect(properties);
     }
 
     /**
@@ -199,12 +154,7 @@ class BaseCard {
      * characters).
      */
     whileAttached(properties) {
-        this.persistentEffect({
-            condition: () => !!this.parent && (!properties.condition || properties.condition()),
-            match: (card, context) => card === this.parent && (!properties.match || properties.match(card, context)),
-            targetController: 'any',
-            effect: properties.effect
-        });
+        this.printedAbilityText.whileAttached(properties);
     }
 
     /**
@@ -251,7 +201,7 @@ class BaseCard {
     }
 
     doAction(player, arg) {
-        var action = this.abilities.actions[arg];
+        var action = this.printedAbilityText.actions[arg];
 
         if(!action) {
             return;
@@ -379,7 +329,7 @@ class BaseCard {
     }
 
     applyAnyLocationPersistentEffects() {
-        for(let effect of this.abilities.persistentEffects) {
+        for(let effect of this.printedAbilityText.persistentEffects) {
             if(effect.location === 'any') {
                 this.game.addEffect(this, effect);
             }
@@ -387,7 +337,7 @@ class BaseCard {
     }
 
     getPersistentEffects() {
-        return this.abilities.persistentEffects.filter(effect => effect.location !== 'any');
+        return this.printedAbilityText.persistentEffects.filter(effect => effect.location !== 'any');
     }
 
     applyPersistentEffects() {
@@ -427,14 +377,14 @@ class BaseCard {
             this.events.unregisterAll();
         }
 
-        for(let action of this.abilities.actions) {
+        for(let action of this.printedAbilityText.actions) {
             if(action.isEventListeningLocation(targetLocation) && !action.isEventListeningLocation(originalLocation)) {
                 action.registerEvents();
             } else if(action.isEventListeningLocation(originalLocation) && !action.isEventListeningLocation(targetLocation)) {
                 action.unregisterEvents();
             }
         }
-        for(let reaction of this.abilities.reactions) {
+        for(let reaction of this.printedAbilityText.reactions) {
             if(reaction.isEventListeningLocation(targetLocation) && !reaction.isEventListeningLocation(originalLocation)) {
                 reaction.registerEvents();
             } else if(reaction.isEventListeningLocation(originalLocation) && !reaction.isEventListeningLocation(targetLocation)) {
@@ -457,7 +407,7 @@ class BaseCard {
             return;
         }
 
-        let actionIndexPairs = this.abilities.actions.map((action, index) => [action, index]);
+        let actionIndexPairs = this.printedAbilityText.actions.map((action, index) => [action, index]);
         let menuActionPairs = actionIndexPairs.filter(pair => {
             let action = pair[0];
             return action.allowPlayer(player) && !action.isClickToActivate() && action.allowMenu();
@@ -642,7 +592,7 @@ class BaseCard {
     }
 
     onClick(player) {
-        var action = this.abilities.actions.find(action => action.isClickToActivate());
+        var action = this.printedAbilityText.actions.find(action => action.isClickToActivate());
         if(action) {
             return action.execute(player) || action.deactivate(player);
         }

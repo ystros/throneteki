@@ -21,7 +21,7 @@ describe('BaseCard', function () {
     describe('doAction()', function() {
         describe('when there is no action for the card', function() {
             beforeEach(function() {
-                this.card.abilities.actions = [];
+                this.card.printedAbilityText.actions = [];
             });
 
             it('does not crash', function() {
@@ -33,7 +33,7 @@ describe('BaseCard', function () {
             beforeEach(function() {
                 this.actionSpy1 = jasmine.createSpyObj('action', ['execute']);
                 this.actionSpy2 = jasmine.createSpyObj('action', ['execute']);
-                this.card.abilities.actions = [this.actionSpy1, this.actionSpy2];
+                this.card.printedAbilityText.actions = [this.actionSpy1, this.actionSpy2];
             });
 
             it('should call execute on the action with the appropriate index', function() {

@@ -35,7 +35,7 @@ describe('Kings Of Summer', function() {
 
     describe('reserve persistent effect', function() {
         beforeEach(function() {
-            this.reserveEffect = this.agenda.abilities.persistentEffects[0];
+            this.reserveEffect = this.agenda.printedAbilityText.persistentEffects[0];
         });
 
         it('should target all players', function() {
@@ -56,7 +56,7 @@ describe('Kings Of Summer', function() {
 
     describe('gold persistent effect', function() {
         beforeEach(function() {
-            this.goldEffect = this.agenda.abilities.persistentEffects[1];
+            this.goldEffect = this.agenda.printedAbilityText.persistentEffects[1];
         });
 
         it('should increase the gold on the plot', function() {

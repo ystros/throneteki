@@ -78,7 +78,7 @@ describe('The Rains of Castamere', function() {
         beforeEach(function() {
             this.challenge = { challengeType: 'intrigue', winner: this.player, strengthDifference: 5 };
             this.event = { challenge: this.challenge };
-            this.reaction = this.agenda.abilities.reactions[0];
+            this.reaction = this.agenda.printedAbilityText.reactions[0];
         });
 
         describe('when the challenge type is not intrigue', function() {
