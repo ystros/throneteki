@@ -66,7 +66,6 @@ class BaseCard {
         this.abilityRestrictions = [];
         this.events = new EventRegistrar(this.game, this);
 
-        this.abilities = { actions: [], reactions: [], persistentEffects: [], playActions: [] };
         this.printedAbilityText = new AbilityText(this.game, this);
         this.parseKeywords(cardData.text || '');
         for(let trait of cardData.traits || []) {
