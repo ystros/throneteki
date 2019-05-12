@@ -1,4 +1,5 @@
 const AbilityLimit = require('./abilitylimit.js');
+const AbilityText = require('./AbilityText');
 const AllowedChallenge = require('./AllowedChallenge');
 const CostReducer = require('./costreducer.js');
 const PlayableLocation = require('./playablelocation.js');
@@ -128,15 +129,19 @@ const Effects = {
         return Effects.addKeyword(`No attachments except <i>${trait}</i>`);
     },
     gainText: function(textFunc) {
-        let text = new AbilityText();
-        textFunc(text);
-
         return {
-            apply: function(card) {
+            apply: function(card, context) {
+                let text = new AbilityText(context.game, context.source);
+                textFunc(text);
 
+                context.gainText = context.gainText || {};
+                context.gainText[card.uuid] = text;
+                card.gainText(text);
             },
-            unapply: function(card) {
-
+            unapply: function(card, context) {
+                let text = context.gainText[card.uuid];
+                card.loseText(text);
+                delete context.gainText[card.uuid];
             }
         };
     },

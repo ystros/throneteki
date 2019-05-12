@@ -221,6 +221,14 @@ class BaseCard {
         return [];
     }
 
+    gainText(text) {
+
+    }
+
+    loseText(text) {
+
+    }
+
     get controller() {
         if(this.controllerStack.length === 0) {
             return this.owner;
