@@ -395,6 +395,7 @@ class GameServer {
     onGameMessage(socket, command, ...args) {
         var game = this.findGameForUser(socket.user.username);
 
+        console.log(command, args);
         if(!game) {
             return;
         }

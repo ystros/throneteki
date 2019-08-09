@@ -4,13 +4,16 @@ const logger = require('./log.js');
 const monk = require('monk');
 const EventEmitter = require('events');
 const GameService = require('./services/GameService.js');
+const AbuseReportService = require('./services/AbuseReportService');
 
 class GameRouter extends EventEmitter {
     constructor(config) {
         super();
 
         this.workers = {};
-        this.gameService = new GameService(monk(config.dbPath));
+        let dbConnection = monk(config.dbPath);
+        this.gameService = new GameService(dbConnection);
+        this.abuseReportService = new AbuseReportService(dbConnection);
 
         router.bind(config.mqUrl, err => {
             if(err) {
@@ -133,6 +136,16 @@ class GameRouter extends EventEmitter {
         }
 
         this.sendCommand(game.node.identity, 'CLOSEGAME', { gameId: game.id });
+    }
+
+    reportInGameAbuse({ reportingUser, reportedUser, reason, game }) {
+        this.abuseReportService.create({
+            reportingUser,
+            reportedUser,
+            reason,
+            gameId: game && game.id,
+            log: game && game.getPlainTextLog()
+        });
     }
 
     // Events
