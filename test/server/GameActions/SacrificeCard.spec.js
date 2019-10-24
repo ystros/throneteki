@@ -1,6 +1,6 @@
 const SacrificeCard = require('../../../server/game/GameActions/SacrificeCard');
 
-describe('SacrificeCard', function() {
+fdescribe('SacrificeCard', function() {
     beforeEach(function() {
         this.cardSpy = jasmine.createSpyObj('card', ['allowGameAction', 'createSnapshot']);
         this.playerSpy = jasmine.createSpyObj('player', ['moveCard']);
@@ -42,7 +42,8 @@ describe('SacrificeCard', function() {
 
     describe('createEvent()', function() {
         beforeEach(function() {
-            this.event = SacrificeCard.createEvent(this.props);
+            const combinedEvent = SacrificeCard.createEvent(this.props);
+            this.event = combinedEvent.getConcurrentEvents().find(event => event.name === 'onSacrificed');
         });
 
         it('creates a onSacrificed event', function() {
@@ -55,14 +56,16 @@ describe('SacrificeCard', function() {
             beforeEach(function() {
                 this.cardSpy.createSnapshot.and.returnValue('snapshot');
                 this.event.executeHandler();
+                this.placeEvent = this.event.attachedEvents.find(event => event.name === 'onCardPlaced');
             });
 
             it('sets the card snapshot on the event', function() {
+                console.log(this.event);
                 expect(this.event.cardStateWhenSacrificed).toBe('snapshot');
             });
 
             it('moves the card to discard', function() {
-                expect(this.playerSpy.moveCard).toHaveBeenCalledWith(this.cardSpy, 'discard pile');
+                expect(this.placeEvent.location).toBe('discard pile');
             });
         });
     });
