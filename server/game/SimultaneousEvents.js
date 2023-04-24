@@ -38,7 +38,7 @@ class SimultaneousEvents {
     }
 
     executeHandler() {
-        for(let event of this.activeChildEvents) {
+        for(let event of this.getConcurrentEvents()) {
             event.executeHandler();
         }
     }
@@ -54,9 +54,11 @@ class SimultaneousEvents {
     }
 
     getConcurrentEvents() {
-        return this.activeChildEvents.reduce((concurrentEvents, event) => {
+        const events = this.activeChildEvents.reduce((concurrentEvents, event) => {
             return concurrentEvents.concat(event.getConcurrentEvents());
         }, []);
+
+        return events.sort((a, b) => a.order < b.order ? -1 : 1);
     }
 
     getPrimaryEvent() {

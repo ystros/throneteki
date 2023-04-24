@@ -1,3 +1,4 @@
+const GameActions = require('../GameActions/index.js');
 const BaseStep = require('./basestep.js');
 
 class KillCharacters extends BaseStep {
@@ -9,6 +10,16 @@ class KillCharacters extends BaseStep {
     }
 
     continue() {
+        this.game.resolveGameAction(
+            GameActions.simultaneously(this.cards.map(card => (
+                GameActions.kill({
+                    allowSave: this.options.allowSave,
+                    card,
+                    isBurn: this.options.isBurn
+                })
+            )))
+        );
+        return;
         let cardsInPlay = this.cards.filter(card => card.location === 'play area');
         this.game.applyGameAction('kill', cardsInPlay, killable => {
             for(let card of killable) {

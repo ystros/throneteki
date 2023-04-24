@@ -13,6 +13,7 @@ class InterruptWindow extends BaseStep {
             new SimpleStep(game, () => this.automaticSaveWithDupes()),
             new SimpleStep(game, () => this.openAbilityWindow('forcedinterrupt')),
             new SimpleStep(game, () => this.openAbilityWindow('interrupt')),
+            new SimpleStep(game, () => this.choosePlacementOrder()),
             new SimpleStep(game, () => this.executeHandler()),
             new SimpleStep(game, () => this.openWindowForAttachedEvents()),
             new SimpleStep(game, () => this.executePostHandler()),
@@ -66,6 +67,43 @@ class InterruptWindow extends BaseStep {
             abilityType: abilityType,
             event: this.event
         });
+    }
+
+    choosePlacementOrder() {
+        const placeCardEvents = this.event.getConcurrentEvents().filter(event => event.name === 'onCardPlaced' && event.location === 'dead pile');
+
+        for(let player of this.game.getPlayersInFirstPlayerOrder()) {
+            const placeCardEventsForPlayer = placeCardEvents.filter(event => event.player === player);
+
+            if(placeCardEventsForPlayer.length < 2) {
+                continue;
+            }
+            const cardsToEvents = new Map();
+            for(const event of placeCardEventsForPlayer) {
+                cardsToEvents.set(event.card, event);
+            }
+
+            this.game.promptForSelect(player, {
+                ordered: true,
+                mode: 'exactly',
+                numCards: placeCardEventsForPlayer.length,
+                activePromptTitle: 'Select order to place cards in dead pile (top first)',
+                cardCondition: card => cardsToEvents.has(card),
+                onSelect: (player, selectedCards) => {
+                    let order = 0;
+                    for(const card of selectedCards.reverse()) {
+                        const event = cardsToEvents.get(card);
+                        event.order = order;
+                        order += 1;
+                    }
+
+                    return true;
+                },
+                onCancel: () => {
+                    return true;
+                }
+            });
+        }
     }
 
     executeHandler() {
