@@ -38,9 +38,9 @@ class SimultaneousEvents {
     }
 
     executeHandler() {
-        for(let event of this.getConcurrentEvents()) {
-            event.executeHandler();
-        }
+        // for(let event of this.getConcurrentEvents()) {
+        //     event.executeHandler();
+        // }
     }
 
     executePostHandler() {
@@ -58,7 +58,7 @@ class SimultaneousEvents {
             return concurrentEvents.concat(event.getConcurrentEvents());
         }, []);
 
-        return events.sort((a, b) => a.order < b.order ? -1 : 1);
+        return events;
     }
 
     getPrimaryEvent() {

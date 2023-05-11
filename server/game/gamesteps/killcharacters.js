@@ -15,6 +15,7 @@ class KillCharacters extends BaseStep {
                 GameActions.kill({
                     allowSave: this.options.allowSave,
                     card,
+                    force: this.options.force,
                     isBurn: this.options.isBurn
                 })
             )))

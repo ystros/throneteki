@@ -111,7 +111,10 @@ class InterruptWindow extends BaseStep {
             return;
         }
 
-        this.event.executeHandler();
+        const events = this.event.getConcurrentEvents().sort((a, b) => a.order > b.order ? 1 : 0);
+        for(const event of events) {
+            event.executeHandler();
+        }
     }
 
     openWindowForAttachedEvents() {

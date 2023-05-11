@@ -87,9 +87,9 @@ class Event {
         }
         this.handler(this);
 
-        for(let event of this.childEvents) {
-            event.executeHandler();
-        }
+        // for(let event of this.childEvents) {
+        //     event.executeHandler();
+        // }
     }
 
     executePostHandler() {
