@@ -23,14 +23,10 @@ class DeckService {
         formattedDeck.lockedForEditing = deck.lockedForEditing;
         formattedDeck.lockedForDeletion = deck.lockedForDeletion;
 
-        formattedDeck.status = {};
-
-        for (const restrictedList of this.restrictedLists) {
-            formattedDeck.status[restrictedList._id] = validateDeck(formattedDeck, {
-                packs: this.packs,
-                restrictedLists: [restrictedList]
-            });
-        }
+        formattedDeck.status = validateDeck(formattedDeck, {
+            packs: this.packs,
+            restrictedLists: this.restrictedLists
+        });
 
         return formattedDeck;
     };

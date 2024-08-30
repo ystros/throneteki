@@ -6,7 +6,7 @@ import DeckStatusSummary from './DeckStatusSummary';
 import StatusPopOver from './StatusPopOver';
 
 const DeckStatus = ({ className, status }) => {
-    const restrictionsFollowed = status.faqJoustRules && status.noUnreleasedCards;
+    const restrictionsFollowed = status.restrictedRules && status.noUnreleasedCards;
     let classNameValue = classNames('deck-status', className, {
         invalid: !status.basicRules || !status.noBannedCards,
         'casual-play': status.basicRules && status.noBannedCards && !restrictionsFollowed,

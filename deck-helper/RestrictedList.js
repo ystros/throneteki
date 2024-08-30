@@ -1,5 +1,7 @@
 class RestrictedList {
     constructor(rules) {
+        this._id = rules._id;
+        this.name = rules.name;
         this.rules = rules;
         this.pods = rules.pods || [];
     }

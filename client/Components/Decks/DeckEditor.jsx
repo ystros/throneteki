@@ -104,12 +104,10 @@ const DeckEditor = ({ deck, onDeckUpdated, onDeckSave, isSaveLoading, onRestrict
         if ((!restrictedLists && !currentRestrictedList) || !packs) {
             retDeck.status = {};
         } else {
-            for (const restrictedList of restrictedLists) {
-                retDeck.status[restrictedList._id] = validateDeck(retDeck, {
-                    packs: packs,
-                    restrictedLists: [restrictedList]
-                });
-            }
+            retDeck.status = validateDeck(retDeck, {
+                packs: packs,
+                restrictedLists: restrictedLists
+            });
         }
 
         return retDeck;

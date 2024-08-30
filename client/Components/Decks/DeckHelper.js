@@ -7,7 +7,7 @@ export function deckStatusLabel(status) {
         return 'Banned';
     }
 
-    if (!status.faqJoustRules || !status.noUnreleasedCards) {
+    if (!status.restrictedRules || !status.noUnreleasedCards) {
         return 'Casual';
     }
 

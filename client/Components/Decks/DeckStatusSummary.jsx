@@ -1,16 +1,11 @@
 import React from 'react';
 
 const DeckStatusSummary = ({ status }) => {
-    let { basicRules, noUnreleasedCards, restrictedLists } = status;
-    const restrictedListItems = (restrictedLists || [])
-        .map((rl) => [
-            { title: `${rl.name} restricted list`, value: rl.restrictedRules },
-            { title: `${rl.name} banned list`, value: rl.noBannedCards }
-        ])
-        .reduce((items, rlItems) => items.concat(rlItems), []);
+    let { basicRules, noUnreleasedCards, restrictedRules, noBannedCards, name } = status;
     const items = [
         { title: 'Basic deckbuilding rules', value: basicRules },
-        ...restrictedListItems,
+        { title: `${name} restricted list`, value: restrictedRules },
+        { title: `${name} banned list`, value: noBannedCards },
         { title: 'Only released cards', value: noUnreleasedCards }
     ];
 

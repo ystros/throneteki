@@ -87,7 +87,7 @@ const PendingGame = () => {
                     deck = <span className='deck-selection'>Deck Selected</span>;
                 }
 
-                status = <DeckStatus status={player.deck.status} />;
+                status = <DeckStatus status={player.deck.status[currentGame.restrictedList._id]} />;
             } else if (player && playerIsMe) {
                 selectLink = (
                     <span className='card-link' onClick={onSelectDeckClick}>

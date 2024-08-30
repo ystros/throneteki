@@ -68,28 +68,19 @@ class DeckValidator {
             }
         }
 
-        let restrictedListResults = this.restrictedLists.map((restrictedList) =>
-            restrictedList.validate(deck)
-        );
-        let officialRestrictedResult = restrictedListResults[0] || {
-            noBannedCards: true,
-            restrictedRules: true,
-            version: ''
-        };
-        const restrictedListErrors = restrictedListResults.reduce(
-            (errors, result) => errors.concat(result.errors),
-            []
-        );
-
-        return {
-            basicRules: errors.length === 0,
-            faqJoustRules: officialRestrictedResult.restrictedRules,
-            faqVersion: officialRestrictedResult.version,
-            noBannedCards: officialRestrictedResult.noBannedCards,
-            restrictedLists: restrictedListResults,
-            noUnreleasedCards: unreleasedCards.length === 0,
-            extendedStatus: errors.concat(unreleasedCards).concat(restrictedListErrors)
-        };
+        return this.restrictedLists.reduce((statuses, restrictedList) => {
+            const restrictedListResult = restrictedList.validate(deck);
+            statuses[restrictedList._id] = {
+                _id: restrictedList._id,
+                name: restrictedList.name,
+                basicRules: errors.length === 0,
+                restrictedRules: restrictedListResult.restrictedRules,
+                noBannedCards: restrictedListResult.noBannedCards,
+                noUnreleasedCards: unreleasedCards.length === 0,
+                extendedStatus: errors.concat(unreleasedCards).concat(restrictedListResult.errors)
+            }
+            return statuses;
+        }, {});
     }
 
     getRules(deck) {
