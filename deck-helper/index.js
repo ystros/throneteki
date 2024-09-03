@@ -9,7 +9,9 @@ export const validateDeck = (deck, options) => {
     let result = validator.validateDeck(deck);
 
     if (!options.includeExtendedStatus) {
-        delete result.extendedStatus;
+        for(const restrictedListStatus of Object.values(result.status)) {
+            delete restrictedListStatus.extendedStatus;
+        }
     }
 
     return result;
