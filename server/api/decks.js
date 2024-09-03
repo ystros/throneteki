@@ -33,7 +33,13 @@ export const init = async function (server, options) {
         '/api/decks',
         passport.authenticate('jwt', { session: false }),
         wrapAsync(async function (req, res) {
-            let decks = await deckService.findByUserName(req.user.username);
+            let start = Date.now();
+            let decks = [];
+            let scale = 100;
+            for(let i = 0; i < scale; ++i) {
+                decks = await deckService.findByUserName(req.user.username);
+            }
+            console.log("Loading ", decks.length * scale, " decks: ", Date.now() - start);
             res.send({ success: true, data: decks });
         })
     );

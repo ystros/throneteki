@@ -14,7 +14,8 @@ class DeckService {
         this.cards = await this.cardService.getAllCards();
     }
 
-    processDeck = (deck) => {
+    processDeck = (deck, validator) => {
+        let start = Date.now();
         let formattedDeck = formatDeckAsFullCards(deck, {
             cards: this.cards,
             factions: this.factions
@@ -27,6 +28,8 @@ class DeckService {
             packs: this.packs,
             restrictedLists: this.restrictedLists
         });
+
+        console.log("Time processing", deck.name, ": ", Date.now() - start)
 
         return formattedDeck;
     };
