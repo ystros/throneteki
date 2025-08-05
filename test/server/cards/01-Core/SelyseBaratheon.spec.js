@@ -1,4 +1,4 @@
-describe('Selyse Baratheon (Core)', function () {
+fdescribe('Selyse Baratheon (Core)', function () {
     integration(function () {
         beforeEach(function () {
             const deck1 = this.buildDeck('baratheon', ['Sneak Attack', 'Selyse Baratheon (Core)']);
@@ -15,10 +15,12 @@ describe('Selyse Baratheon (Core)', function () {
             this.completeMarshalPhase();
 
             this.selyse = this.player1.findCardByName('Selyse Baratheon', 'play area');
+            console.log(`${Date.now()} Using Nymeria`);
             this.player2.clickMenu('Nymeria Sand', 'Remove and gain icon');
             this.player2.clickCard(this.selyse);
             this.player2.clickPrompt('Intrigue');
 
+            console.log(`${Date.now()} Expect Nymeria to be applied`);
             expect(this.selyse.hasIcon('intrigue')).toBe(false);
 
             this.player1.clickMenu(
@@ -29,6 +31,7 @@ describe('Selyse Baratheon (Core)', function () {
         });
 
         it('should allow a stolen icon to be restored', function () {
+            console.log(this.game.getPlainTextLog());
             expect(this.selyse.hasIcon('intrigue')).toBe(true);
         });
 

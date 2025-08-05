@@ -11,6 +11,7 @@ class IconPrompt extends BaseStep {
     }
 
     continue() {
+        console.log(`${Date.now()} Opening prompt for icon`);
         this.game.promptWithMenu(this.player, this, {
             activePrompt: {
                 menuTitle: 'Select an icon',
@@ -21,6 +22,7 @@ class IconPrompt extends BaseStep {
     }
 
     iconSelected(player, icon) {
+        console.log(`${Date.now()} Icon selected in prompt`);
         this.callback(icon);
 
         return true;

@@ -13,7 +13,10 @@ class NymeriaSand extends DrawCard {
                     card.getType() === 'character'
             },
             handler: async (context) => {
+                console.log(`${Date.now()} Nymeria action started`);
                 const icon = await this.game.promptForIcon(this.controller, this);
+                console.log(`${Date.now()}Chosen icon ${icon}`);
+
                 let sandSnakes = this.controller.filterCardsInPlay(
                     (card) => card.getType() === 'character' && card.hasTrait('Sand Snake')
                 );
@@ -35,6 +38,8 @@ class NymeriaSand extends DrawCard {
                     icon,
                     context.target
                 );
+
+                console.log(`${Date.now()} Done with Nymeria`);
             }
         });
     }
