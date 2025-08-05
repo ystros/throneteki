@@ -16,22 +16,21 @@ class Foamdrinker extends DrawCard {
                     card.getType() === 'character' &&
                     (card.hasTrait('Captain') || card.hasTrait('Raider'))
             },
-            handler: (context) => {
-                this.game.promptForIcon(context.player, this, (icon) => {
-                    this.untilEndOfPhase((ability) => ({
-                        match: context.target,
-                        effect: ability.effects.addIcon(icon)
-                    }));
+            handler: async (context) => {
+                const icon = await this.game.promptForIcon(context.player, this);
+                this.untilEndOfPhase((ability) => ({
+                    match: context.target,
+                    effect: ability.effects.addIcon(icon)
+                }));
 
-                    this.game.addMessage(
-                        '{0} kneels {1} to give {2} {3} icon to {4} until the end of the phase',
-                        context.player,
-                        this,
-                        icon === 'intrigue' ? 'an' : 'a',
-                        icon,
-                        context.target
-                    );
-                });
+                this.game.addMessage(
+                    '{0} kneels {1} to give {2} {3} icon to {4} until the end of the phase',
+                    context.player,
+                    this,
+                    icon === 'intrigue' ? 'an' : 'a',
+                    icon,
+                    context.target
+                );
             }
         });
     }

@@ -23,23 +23,21 @@ class TheDornishWars extends PlotCard {
                 gameAction: 'loseIcon'
             },
             limit: ability.limit.perPhase(2),
-            handler: (context) => {
-                this.game.promptForIcon(context.player, this, (icon) => {
-                    this.untilEndOfPhase((ability) => ({
-                        match: context.target,
-                        effect: ability.effects.removeIcon(icon)
-                    }));
+            handler: async (context) => {
+                const icon = await this.game.promptForIcon(context.player, this);
+                this.untilEndOfPhase((ability) => ({
+                    match: context.target,
+                    effect: ability.effects.removeIcon(icon)
+                }));
 
-                    this.game.addMessage(
-                        '{0} uses {1} to have {2} lose {4} {5} icon until the end of the phase',
-                        context.player,
-                        this,
-                        context.target,
-                        icon === 'intrigue' ? 'an' : 'a',
-                        icon
-                    );
-                });
-                return true;
+                this.game.addMessage(
+                    '{0} uses {1} to have {2} lose {4} {5} icon until the end of the phase',
+                    context.player,
+                    this,
+                    context.target,
+                    icon === 'intrigue' ? 'an' : 'a',
+                    icon
+                );
             }
         });
     }

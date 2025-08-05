@@ -14,23 +14,22 @@ class BeneathThePetals extends DrawCard {
             },
             message:
                 '{player} plays {source} to give {target} insight and a challenge icon of their choice until the end of the phase',
-            handler: (context) => {
-                this.game.promptForIcon(context.player, this, (icon) => {
-                    this.untilEndOfPhase((ability) => ({
-                        match: context.target,
-                        effect: [
-                            ability.effects.addIcon(icon),
-                            ability.effects.addKeyword('insight')
-                        ]
-                    }));
-                    this.game.addMessage(
-                        '{0} chooses to have {1} gain {2} {3} icon and insight until the end of the phase',
-                        context.player,
-                        context.target,
-                        icon === 'intrigue' ? 'an' : 'a',
-                        icon
-                    );
-                });
+            handler: async (context) => {
+                const icon = await this.game.promptForIcon(context.player, this);
+                this.untilEndOfPhase((ability) => ({
+                    match: context.target,
+                    effect: [
+                        ability.effects.addIcon(icon),
+                        ability.effects.addKeyword('insight')
+                    ]
+                }));
+                this.game.addMessage(
+                    '{0} chooses to have {1} gain {2} {3} icon and insight until the end of the phase',
+                    context.player,
+                    context.target,
+                    icon === 'intrigue' ? 'an' : 'a',
+                    icon
+                );
             }
         });
         this.interrupt({

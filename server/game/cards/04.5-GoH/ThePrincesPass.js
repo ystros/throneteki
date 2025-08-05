@@ -15,44 +15,43 @@ class ThePrincesPass extends DrawCard {
                     card.getType() === 'character' &&
                     card.isAttacking()
             },
-            handler: (context) => {
+            handler: async (context) => {
                 this.targetCharacter = context.target;
 
-                this.game.promptForIcon(this.controller, this, (icon) => {
-                    this.untilEndOfPhase((ability) => ({
-                        match: this.targetCharacter,
-                        effect: ability.effects.removeIcon(icon)
-                    }));
+                const icon = await this.game.promptForIcon(this.controller, this);
+                this.untilEndOfPhase((ability) => ({
+                    match: this.targetCharacter,
+                    effect: ability.effects.removeIcon(icon)
+                }));
 
-                    this.game.addMessage(
-                        '{0} kneels {1} to remove {2} {3} icon from {4}',
-                        this.controller,
-                        this,
-                        icon === 'intrigue' ? 'an' : 'a',
-                        icon,
-                        this.targetCharacter
-                    );
+                this.game.addMessage(
+                    '{0} kneels {1} to remove {2} {3} icon from {4}',
+                    this.controller,
+                    this,
+                    icon === 'intrigue' ? 'an' : 'a',
+                    icon,
+                    this.targetCharacter
+                );
 
-                    //put the then part in a simple step after the effect above is fully applied
-                    this.game.queueSimpleStep(() => {
-                        if (this.targetCharacter.getNumberOfIcons() === 0) {
-                            this.game.promptWithMenu(this.controller, this, {
-                                activePrompt: {
-                                    menuTitle:
-                                        'Sacrifice ' +
-                                        this.name +
-                                        ' to discard ' +
-                                        this.targetCharacter.name +
-                                        '?',
-                                    buttons: [
-                                        { text: 'Yes', method: 'sacrifice' },
-                                        { text: 'No', method: 'pass' }
-                                    ]
-                                },
-                                source: this
-                            });
-                        }
-                    });
+                //put the then part in a simple step after the effect above is fully applied
+                this.game.queueSimpleStep(() => {
+                    if (this.targetCharacter.getNumberOfIcons() === 0) {
+                        this.game.promptWithMenu(this.controller, this, {
+                            activePrompt: {
+                                menuTitle:
+                                    'Sacrifice ' +
+                                    this.name +
+                                    ' to discard ' +
+                                    this.targetCharacter.name +
+                                    '?',
+                                buttons: [
+                                    { text: 'Yes', method: 'sacrifice' },
+                                    { text: 'No', method: 'pass' }
+                                ]
+                            },
+                            source: this
+                        });
+                    }
                 });
             }
         });

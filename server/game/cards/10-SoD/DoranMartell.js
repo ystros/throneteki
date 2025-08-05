@@ -51,23 +51,22 @@ class DoranMartell extends DrawCard {
         };
     }
 
-    handleIcon(context, isGain) {
-        this.game.promptForIcon(context.player, this, (icon) => {
-            this.untilEndOfPhase((ability) => ({
-                match: context.target,
-                effect: isGain ? ability.effects.addIcon(icon) : ability.effects.removeIcon(icon)
-            }));
+    async handleIcon(context, isGain) {
+        const icon = await this.game.promptForIcon(context.player, this);
+        this.untilEndOfPhase((ability) => ({
+            match: context.target,
+            effect: isGain ? ability.effects.addIcon(icon) : ability.effects.removeIcon(icon)
+        }));
 
-            this.game.addMessage(
-                '{0} uses {1} to have {2} {3} {4} {5} icon until the end of the phase',
-                context.player,
-                this,
-                context.target,
-                isGain ? 'gain' : 'lose',
-                icon === 'intrigue' ? 'an' : 'a',
-                icon
-            );
-        });
+        this.game.addMessage(
+            '{0} uses {1} to have {2} {3} {4} {5} icon until the end of the phase',
+            context.player,
+            this,
+            context.target,
+            isGain ? 'gain' : 'lose',
+            icon === 'intrigue' ? 'an' : 'a',
+            icon
+        );
         return true;
     }
 }

@@ -21,21 +21,20 @@ class VultureKing extends DrawCard {
             },
             message:
                 '{player} uses {source} and discards {costs.discardFromDeck} from their deck to have {target} lose a challenge icon until the end of the phase',
-            handler: (context) => {
-                this.game.promptForIcon(context.player, this, (icon) => {
-                    this.untilEndOfPhase((ability) => ({
-                        match: context.target,
-                        effect: ability.effects.removeIcon(icon)
-                    }));
+            handler: async (context) => {
+                const icon = await this.game.promptForIcon(context.player, this);
+                this.untilEndOfPhase((ability) => ({
+                    match: context.target,
+                    effect: ability.effects.removeIcon(icon)
+                }));
 
-                    this.game.addMessage(
-                        '{0} chooses to have {1} lose {2} {3} icon until the end of the phase',
-                        context.player,
-                        context.target,
-                        icon === 'intrigue' ? 'an' : 'a',
-                        icon
-                    );
-                });
+                this.game.addMessage(
+                    '{0} chooses to have {1} lose {2} {3} icon until the end of the phase',
+                    context.player,
+                    context.target,
+                    icon === 'intrigue' ? 'an' : 'a',
+                    icon
+                );
             }
         });
     }

@@ -751,8 +751,10 @@ class Game extends EventEmitter {
         this.queueStep(new CardNamePrompt(this, properties));
     }
 
-    promptForIcon(player, card, callback = () => true) {
-        this.queueStep(new IconPrompt(this, player, card, callback));
+    async promptForIcon(player, card) {
+        const { promise, resolve } = Promise.withResolvers();
+        this.queueStep(new IconPrompt(this, player, card, resolve));
+        return promise;
     }
 
     promptForSelect(player, properties) {

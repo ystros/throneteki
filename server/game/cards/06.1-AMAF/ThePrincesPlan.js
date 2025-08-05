@@ -8,26 +8,25 @@ class ThePrincesPlan extends DrawCard {
                 cardCondition: (card) =>
                     card.location === 'play area' && card.getType() === 'character'
             },
-            handler: (context) => {
+            handler: async (context) => {
                 let strBoost = this.controller.getNumberOfUsedPlots();
-                this.game.promptForIcon(this.controller, this, (icon) => {
-                    this.game.addMessage(
-                        '{0} plays {1} to give {2} +{3} STR and {4} {5} icon until the end of the phase',
-                        this.controller,
-                        this,
-                        context.target,
-                        strBoost,
-                        icon === 'intrigue' ? 'an' : 'a',
-                        icon
-                    );
-                    this.untilEndOfPhase((ability) => ({
-                        match: context.target,
-                        effect: [
-                            ability.effects.modifyStrength(strBoost),
-                            ability.effects.addIcon(icon)
-                        ]
-                    }));
-                });
+                const icon = await this.game.promptForIcon(this.controller, this);
+                this.game.addMessage(
+                    '{0} plays {1} to give {2} +{3} STR and {4} {5} icon until the end of the phase',
+                    this.controller,
+                    this,
+                    context.target,
+                    strBoost,
+                    icon === 'intrigue' ? 'an' : 'a',
+                    icon
+                );
+                this.untilEndOfPhase((ability) => ({
+                    match: context.target,
+                    effect: [
+                        ability.effects.modifyStrength(strBoost),
+                        ability.effects.addIcon(icon)
+                    ]
+                }));
             }
         });
 

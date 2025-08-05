@@ -9,21 +9,20 @@ class FleetFromPyke extends DrawCard {
                     event.source.controller === this.controller &&
                     ['location', 'attachment'].includes(event.card.getType())
             },
-            handler: (context) => {
-                this.game.promptForIcon(context.player, this, (icon) => {
-                    this.untilEndOfPhase((ability) => ({
-                        match: this,
-                        effect: ability.effects.addIcon(icon)
-                    }));
+            handler: async (context) => {
+                const icon = await this.game.promptForIcon(context.player, this);
+                this.untilEndOfPhase((ability) => ({
+                    match: this,
+                    effect: ability.effects.addIcon(icon)
+                }));
 
-                    this.game.addMessage(
-                        '{0} gains {1} {2} icon on {3}',
-                        context.player,
-                        icon === 'intrigue' ? 'an' : 'a',
-                        icon,
-                        this
-                    );
-                });
+                this.game.addMessage(
+                    '{0} gains {1} {2} icon on {3}',
+                    context.player,
+                    icon === 'intrigue' ? 'an' : 'a',
+                    icon,
+                    this
+                );
             }
         });
     }
